@@ -1,16 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMS Login</title>
+    <title>CMS Admin Login - Multimedia Management</title>
+
+    <!-- SEO Meta Tags -->
+    <meta name="description"
+        content="Trang quản trị CMS Multimedia - Hệ thống quản lý nội dung đa phương tiện dành cho đồ án trường đại học.">
+    <meta name="keywords" content="CMS, Multimedia, NodeJS, NestJS, University Project, Admin Dashboard">
+    <meta name="author" content="Student Project">
+
+    <!-- Open Graph (Facebook/Zalo) -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="CMS Admin Login - Multimedia Management">
+    <meta property="og:description"
+        content="Đăng nhập hệ thống quản trị nội dung. Quản lý bài viết và hình ảnh hiệu quả.">
+    <meta property="og:image" content="img/share-thumbnail.jpg">
+    <meta property="og:url" content="https://cms-ck.onrender.com">
+
+    <!-- Google Analytics (GA4) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMSPROJECT2025"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+
+        gtag('config', 'G-CMSPROJECT2025');
+    </script>
+
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <div class="container" style="max-width: 400px; margin-top: 100px;">
         <h1>CMS Admin Login</h1>
-        
+
         <form id="loginForm">
             <div class="form-group">
                 <label for="email">Email</label>
@@ -28,4 +55,5 @@
 
     <script src="js/auth.js"></script>
 </body>
+
 </html>
