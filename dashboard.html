@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CMS Dashboard</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <script>
+        // Check Auth on Page Load
+        checkAuth();
+    </script>
+</head>
+
+<body>
+
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+
+    <div class="container" style="text-align: center; margin-top: 50px;">
+        <h1>Admin Dashboard</h1>
+        <p>Welcome to the Content Management System.</p>
+
+        <div style="margin-top: 30px;">
+            <a href="posts.html">
+                <button style="padding: 20px; font-size: 18px; width: 200px;">
+                    Manage Posts
+                </button>
+            </a>
+
+            <br><br>
+
+            <button onclick="logout()" class="secondary" style="width: 200px;">
+                Logout
+            </button>
+        </div>
+    </div>
+
+</body>
+
+</html>

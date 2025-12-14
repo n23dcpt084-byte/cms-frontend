@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Posts</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>checkAuth();</script>
+</head>
+
+<body>
+
+    <button id="logoutBtn" onclick="logout()">Logout</button>
+
+    <div class="container">
+        <div class="action-bar">
+            <h1>Manage Posts</h1>
+            <a href="dashboard.html"><button class="secondary" style="width: auto;">&larr; Back to
+                    Dashboard</button></a>
+        </div>
+
+        <!-- Create Post Form -->
+        <div class="post-card" style="background: #eef2f6;">
+            <h2>Create New Post</h2>
+            <form id="createPostForm">
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" id="title" required>
+                </div>
+                <div class="form-group">
+                    <label>Content</label>
+                    <textarea id="content" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Image (Optional)</label>
+                    <input type="file" id="imageFile" accept="image/*">
+                </div>
+                <button type="submit">Publish Post</button>
+            </form>
+        </div>
+
+        <hr>
+
+        <!-- List of Posts -->
+        <div id="postsContainer">
+            <!-- Posts will be injected here by JS -->
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="js/posts.js"></script>
+</body>
+
+</html>
