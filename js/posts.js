@@ -5,12 +5,16 @@ document.addEventListener('DOMContentLoaded', loadPosts);
 
 const postsContainer = document.getElementById('postsContainer');
 const createPostForm = document.getElementById('createPostForm');
+const submitBtn = createPostForm ? createPostForm.querySelector('button[type="submit"]') : null;
+const formTitle = createPostForm ? createPostForm.parentElement.querySelector('h2') : null;
+
+let isEditing = false;
+let currentPostId = null;
 
 // 🟢 FETCH & DISPLAY POSTS
 async function loadPosts() {
     postsContainer.innerHTML = '<p>Loading posts...</p>';
     try {
-        // GET /posts (Public endpoint, but we are admin here)
         const posts = await apiRequest('/posts');
 
         if (!posts || posts.length === 0) {
@@ -18,15 +22,19 @@ async function loadPosts() {
             return;
         }
 
-        postsContainer.innerHTML = ''; // Clear loading
+        postsContainer.innerHTML = '';
         posts.forEach(post => {
             const card = document.createElement('div');
             card.className = 'post-card';
+            // Handle image
+            const imgHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 200px; display:block; margin: 10px 0;">` : '';
+
             card.innerHTML = `
                 <h3>${escapeHtml(post.title)}</h3>
-                <p>${escapeHtml(post.content)}</p>
-                ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 200px;">` : ''}
-                <div style="margin-top: 10px;">
+                <p style="white-space: pre-wrap;">${escapeHtml(post.content)}</p>
+                ${imgHtml}
+                <div style="margin-top: 15px;">
+                    <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
                     <button class="danger" onclick="deletePost('${post._id}')">Delete</button>
                 </div>
             `;
@@ -35,10 +43,28 @@ async function loadPosts() {
 
     } catch (error) {
         postsContainer.innerHTML = '<p style="color:red">Failed to load posts.</p>';
+        console.error(error);
     }
 }
 
-// 🟢 CREATE POST
+// 🟢 START EDIT MODE
+window.startEdit = function (post) {
+    isEditing = true;
+    currentPostId = post._id;
+
+    // Populate Form
+    document.getElementById('title').value = post.title;
+    document.getElementById('content').value = post.content;
+
+    // Update UI
+    if (submitBtn) submitBtn.textContent = 'Update Post';
+    if (formTitle) formTitle.textContent = 'Edit Post';
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+};
+
+// 🟢 HANDLE FORM SUBMIT (CREATE OR UPDATE)
 if (createPostForm) {
     createPostForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -46,49 +72,63 @@ if (createPostForm) {
         const title = document.getElementById('title').value;
         const content = document.getElementById('content').value;
         const fileInput = document.getElementById('imageFile');
-        let imageUrl = '';
+        let imageUrl = undefined; // Undefined means don't update image if not provided
 
         try {
-            // 1. Upload Image First (If selected)
+            // 1. Upload Image (If selected)
             if (fileInput.files.length > 0) {
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
-
                 const uploadResult = await apiUpload('/upload', formData);
                 if (uploadResult && uploadResult.url) {
                     imageUrl = uploadResult.url;
                 }
             }
 
-            // 2. Create Post with the Image URL
-            const postData = { title, content, imageUrl };
+            const postData = { title, content };
+            if (imageUrl) postData.imageUrl = imageUrl;
 
-            // POST /posts (Requires Token)
-            await apiRequest('/posts', 'POST', postData, true);
+            if (isEditing) {
+                // UPDATE (PATCH)
+                await apiRequest(`/posts/${currentPostId}`, 'PATCH', postData, true);
+                alert('Post Updated Successfully!');
+                resetForm();
+            } else {
+                // CREATE (POST)
+                if (!imageUrl) delete postData.imageUrl; // Don't send undefined
+                await apiRequest('/posts', 'POST', postData, true);
+                alert('Post Created Successfully!');
+                createPostForm.reset();
+            }
 
-            alert('Post Created Successfully!');
-            createPostForm.reset();
-            loadPosts(); // Refresh list
+            loadPosts();
 
         } catch (error) {
-            alert('Failed to create post: ' + error.message);
+            alert('Failed to save post: ' + error.message);
         }
     });
 }
 
+function resetForm() {
+    isEditing = false;
+    currentPostId = null;
+    createPostForm.reset();
+    if (submitBtn) submitBtn.textContent = 'Publish Post';
+    if (formTitle) formTitle.textContent = 'Create New Post';
+}
+
 // 🟢 DELETE POST
-async function deletePost(id) {
+window.deletePost = async function (id) {
     if (!confirm('Are you sure you want to delete this post?')) return;
 
     try {
-        // DELETE /posts/:id (Requires Token)
         await apiRequest(`/posts/${id}`, 'DELETE', null, true);
         alert('Post Deleted');
-        loadPosts(); // Refresh list
+        loadPosts();
     } catch (error) {
         alert('Failed to delete post');
     }
-}
+};
 
 // Helper to prevent XSS
 function escapeHtml(text) {
