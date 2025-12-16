@@ -11,14 +11,58 @@ function initQuill() {
     quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
-            toolbar: [
-                [{ 'header': [1, 2, 3, false] }],
-                ['bold', 'italic', 'underline'],
-                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-                ['link', 'image', 'video']
-            ]
+            toolbar: {
+                container: [
+                    [{ 'header': [1, 2, 3, false] }],
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                    ['link', 'image', 'video']
+                ],
+                handlers: {
+                    'image': selectLocalImage
+                }
+            }
         }
     });
+}
+
+// 🟢 Custom Image Handler for Quill
+function selectLocalImage() {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+        const file = input.files[0];
+        if (/^image\//.test(file.type)) {
+            await saveToServer(file);
+        } else {
+            console.warn('You could only upload images.');
+        }
+    };
+}
+
+// Upload to Server and insert URL
+async function saveToServer(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const result = await apiUpload('/upload', formData);
+        if (result && result.url) {
+            insertToEditor(result.url);
+        }
+    } catch (error) {
+        console.error('Error uploading image:', error);
+        alert('Failed to upload image');
+    }
+}
+
+// Insert Image URL into Editor
+function insertToEditor(url) {
+    const range = quill.getSelection();
+    quill.insertEmbed(range.index, 'image', url);
 }
 
 const postsContainer = document.getElementById('postsContainer');
