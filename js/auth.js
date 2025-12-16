@@ -2,6 +2,21 @@
 
 const loginForm = document.getElementById('loginForm');
 
+// 🟢 JWT Helper
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function (c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        return null;
+    }
+}
+
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -46,6 +61,16 @@ function checkAuth() {
         const token = localStorage.getItem('access_token');
         if (!token) {
             window.location.replace('index.html');
+            return;
+        }
+
+        // Check Expiry
+        const payload = parseJwt(token);
+        if (!payload || !payload.exp || (Date.now() >= payload.exp * 1000)) {
+            // Token expired or invalid
+            alert('Session expired. Please login again.');
+            localStorage.removeItem('access_token');
+            window.location.replace('index.html');
         }
     }
 
@@ -78,6 +103,13 @@ function logout() {
 function checkAlreadyLoggedIn() {
     const token = localStorage.getItem('access_token');
     if (token) {
-        window.location.replace('dashboard.html');
+        // Validate before redirecting
+        const payload = parseJwt(token);
+        if (payload && payload.exp && (Date.now() < payload.exp * 1000)) {
+            window.location.replace('dashboard.html');
+        } else {
+            // Invalid/Expired token on login page -> Clear it
+            localStorage.removeItem('access_token');
+        }
     }
 }

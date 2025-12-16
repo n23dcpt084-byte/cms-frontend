@@ -39,10 +39,10 @@ async function apiRequest(endpoint, method = 'GET', body = null, authRequired = 
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-        // Handle errors (like 401 Unauthorized)
+        // Handle errors (like 401 Unauthorized or 403 Forbidden)
         if (!response.ok) {
-            if (response.status === 401) {
-                alert('Session expired. Please login again.');
+            if (response.status === 401 || response.status === 403) {
+                alert('Session expired or unauthorized. Please login again.');
                 localStorage.removeItem('access_token');
                 window.location.replace('index.html');
                 return;
