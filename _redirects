@@ -1,0 +1,2 @@
+# Redirects to handle history mode or specific legacy paths
+/login.html   /index.html   301
