@@ -11,6 +11,9 @@ function initQuill() {
     quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
+            imageResize: {
+                displaySize: true
+            },
             toolbar: {
                 container: [
                     [{ 'header': [1, 2, 3, false] }],
