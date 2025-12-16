@@ -13,10 +13,11 @@ body {
     background: white;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-h1, h2 {
+h1,
+h2 {
     color: #2c3e50;
     text-align: center;
 }
@@ -96,4 +97,25 @@ button.danger {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 20px;
+}
+
+/* Quill Editor Fixes */
+#editor-container {
+    height: 250px;
+    background: white;
+    border-radius: 0 0 4px 4px;
+    /* Bottom rounded only */
+}
+
+.ql-toolbar {
+    background: #f8f9fa;
+    border-radius: 4px 4px 0 0;
+    /* Top rounded only */
+    border-color: #ccc !important;
+}
+
+.ql-container {
+    border-color: #ccc !important;
+    font-family: inherit !important;
+    font-size: 16px !important;
 }

@@ -1,7 +1,25 @@
 // posts.js - Logic for Managing Posts
 
 // Load all posts on start
-document.addEventListener('DOMContentLoaded', loadPosts);
+let quill;
+document.addEventListener('DOMContentLoaded', () => {
+    initQuill();
+    loadPosts();
+});
+
+function initQuill() {
+    quill = new Quill('#editor-container', {
+        theme: 'snow',
+        modules: {
+            toolbar: [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['link', 'image', 'video']
+            ]
+        }
+    });
+}
 
 const postsContainer = document.getElementById('postsContainer');
 const createPostForm = document.getElementById('createPostForm');
@@ -31,7 +49,7 @@ async function loadPosts() {
 
             card.innerHTML = `
                 <h3>${escapeHtml(post.title)}</h3>
-                <p style="white-space: pre-wrap;">${escapeHtml(post.content)}</p>
+                <div class="post-content">${post.content}</div>
                 ${imgHtml}
                 <div style="margin-top: 15px;">
                     <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
@@ -54,7 +72,7 @@ window.startEdit = function (post) {
 
     // Populate Form
     document.getElementById('title').value = post.title;
-    document.getElementById('content').value = post.content;
+    quill.root.innerHTML = post.content;
 
     // Update UI
     if (submitBtn) submitBtn.textContent = 'Update Post';
@@ -70,7 +88,7 @@ if (createPostForm) {
         e.preventDefault();
 
         const title = document.getElementById('title').value;
-        const content = document.getElementById('content').value;
+        const content = quill.root.innerHTML;
         const fileInput = document.getElementById('imageFile');
         let imageUrl = undefined; // Undefined means don't update image if not provided
 
@@ -113,6 +131,7 @@ function resetForm() {
     isEditing = false;
     currentPostId = null;
     createPostForm.reset();
+    quill.root.innerHTML = '';
     if (submitBtn) submitBtn.textContent = 'Publish Post';
     if (formTitle) formTitle.textContent = 'Create New Post';
 }
