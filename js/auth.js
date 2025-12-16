@@ -44,7 +44,7 @@ if (loginForm) {
 function checkAuth() {
     const token = localStorage.getItem('access_token');
     if (!token) {
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 }
 
@@ -52,6 +52,6 @@ function checkAuth() {
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('access_token');
-        window.location.href = 'login.html';
+        window.location.href = 'index.html';
     }
 }

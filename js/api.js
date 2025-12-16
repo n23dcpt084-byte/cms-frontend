@@ -21,7 +21,7 @@ async function apiRequest(endpoint, method = 'GET', body = null, authRequired = 
         const token = localStorage.getItem('access_token');
         if (!token) {
             alert('You are not logged in!');
-            window.location.href = 'login.html';
+            window.location.href = 'index.html';
             return;
         }
         headers['Authorization'] = `Bearer ${token}`;
@@ -44,7 +44,7 @@ async function apiRequest(endpoint, method = 'GET', body = null, authRequired = 
             if (response.status === 401) {
                 alert('Session expired. Please login again.');
                 localStorage.removeItem('access_token');
-                window.location.href = 'login.html';
+                window.location.href = 'index.html';
                 return;
             }
             throw new Error(`API Error: ${response.statusText}`);
