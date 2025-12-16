@@ -84,11 +84,24 @@ async function apiUpload(endpoint, formData) {
             body: formData
         });
 
-        if (!response.ok) throw new Error('Upload failed');
+        if (!response.ok) {
+            if (response.status === 401 || response.status === 403) {
+                alert('Session expired. Please login again.');
+                localStorage.removeItem('access_token');
+                window.location.replace('index.html');
+                return null;
+            }
+            throw new Error('Upload failed with status: ' + response.status);
+        }
         return await response.json();
     } catch (error) {
         console.error('Upload Error:', error);
-        alert('Upload failed!');
+
+        // Handle 401/403 specifically if possible users reports upload fail
+        // Since apiUpload uses fetch directly, we need to check the response object inside the try block
+        // But here we are in the catch block. 
+        // Let's modify the try block instead.
+        alert('Upload failed! Please check if you are logged in.');
         throw error;
     }
 }

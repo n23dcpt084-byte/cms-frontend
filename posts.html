@@ -42,7 +42,13 @@
     <script src="js/auth.js" defer></script>
     <script src="js/api.js" defer></script>
     <script defer>
-        window.addEventListener('DOMContentLoaded', checkAuth);
+        window.addEventListener('DOMContentLoaded', () => {
+            if (typeof checkAuth === 'function') {
+                checkAuth();
+            } else {
+                console.error("Auth module not loaded");
+            }
+        });
     </script>
 </head>
 
