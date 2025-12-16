@@ -131,9 +131,10 @@ button.danger {
     /* 5% from the top and centered */
     padding: 20px;
     border: 1px solid #888;
-    width: 90%;
-    max-width: 900px;
-    /* Big editor */
+    width: 80%;
+    /* Requested 80% width */
+    max-width: 1400px;
+    /* Increased max-width for large screens */
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
