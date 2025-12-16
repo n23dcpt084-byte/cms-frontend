@@ -11,6 +11,9 @@ function initQuill() {
     quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
+            imageResize: {
+                displaySize: true
+            },
             toolbar: {
                 container: [
                     [{ 'header': [1, 2, 3, false] }],
@@ -64,10 +67,7 @@ async function saveToServer(file) {
 // Insert Image URL into Editor
 function insertToEditor(url) {
     const range = quill.getSelection();
-    // Wrap image in resizable container
-    const imageHTML = `<img src="${url}" alt="Image" style="width: 100%; height: 100%; display: block;">`;
-    const wrappedHTML = getResizableWrapper(imageHTML);
-    quill.clipboard.dangerouslyPasteHTML(range.index, wrappedHTML);
+    quill.insertEmbed(range.index, 'image', url);
 }
 
 // 🟢 Custom Video Handler
