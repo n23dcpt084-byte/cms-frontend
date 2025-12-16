@@ -22,7 +22,8 @@ function initQuill() {
                     ['link', 'image', 'video']
                 ],
                 handlers: {
-                    'image': selectLocalImage
+                    'image': selectLocalImage,
+                    'video': selectVideo
                 }
             }
         }
@@ -66,6 +67,39 @@ async function saveToServer(file) {
 function insertToEditor(url) {
     const range = quill.getSelection();
     quill.insertEmbed(range.index, 'image', url);
+}
+
+// 🟢 Custom Video Handler
+function selectVideo() {
+    let url = prompt("Enter Video URL (YouTube, Facebook, TikTok):");
+    if (!url) return;
+
+    let embedUrl = null;
+
+    // Detect Platform
+    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        let videoId = url.split('v=')[1] || url.split('/').pop();
+        const ampersandPosition = videoId.indexOf('&');
+        if (ampersandPosition !== -1) {
+            videoId = videoId.substring(0, ampersandPosition);
+        }
+        embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    } else if (url.includes('facebook.com') || url.includes('fb.watch')) {
+        embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&t=0`;
+    } else if (url.includes('tiktok.com')) {
+        let videoId = url.split('/video/')[1];
+        if (videoId) videoId = videoId.split('?')[0];
+        embedUrl = `https://www.tiktok.com/embed/v2/${videoId}`;
+    }
+
+    if (embedUrl) {
+        const range = quill.getSelection(true); // true = focus
+        // Insert clean Iframe
+        const iframeHTML = `<iframe src="${embedUrl}" width="100%" height="400" frameborder="0" allowfullscreen></iframe><p><br></p>`;
+        quill.clipboard.dangerouslyPasteHTML(range.index, iframeHTML);
+    } else {
+        alert("Invalid or Unsupported Video URL");
+    }
 }
 
 const postsContainer = document.getElementById('postsContainer');
@@ -112,21 +146,41 @@ async function loadPosts() {
     }
 }
 
-// 🟢 START EDIT MODE
+// 🟢 MODAL LOGIC
+const modal = document.getElementById("postModal");
+const modalTitle = document.getElementById("modalTitle");
+
+window.openCreateModal = function () {
+    resetForm();
+    modalTitle.textContent = "Create New Post";
+    modal.style.display = "block";
+    quill.setSelection(0); // Focus
+};
+
+window.closeModal = function () {
+    modal.style.display = "none";
+    resetForm();
+};
+
+// Start Edit Mode (Modified for Modal)
 window.startEdit = function (post) {
     isEditing = true;
     currentPostId = post._id;
 
-    // Populate Form
+    // Open Modal
+    modal.style.display = "block";
+    modalTitle.textContent = "Edit Post";
+
+    // Populate Data
     document.getElementById('title').value = post.title;
     quill.root.innerHTML = post.content;
+};
 
-    // Update UI
-    if (submitBtn) submitBtn.textContent = 'Update Post';
-    if (formTitle) formTitle.textContent = 'Edit Post';
-
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+// Close modal if clicked outside
+window.onclick = function (event) {
+    if (event.target == modal) {
+        closeModal();
+    }
 };
 
 // 🟢 HANDLE FORM SUBMIT (CREATE OR UPDATE)
@@ -167,6 +221,7 @@ if (createPostForm) {
             }
 
             loadPosts();
+            closeModal();
 
         } catch (error) {
             alert('Failed to save post: ' + error.message);
