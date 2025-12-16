@@ -42,16 +42,26 @@ if (loginForm) {
 
 // Check Access on Dashboard Protected Pages
 function checkAuth() {
-    const token = localStorage.getItem('access_token');
-    if (!token) {
-        window.location.href = 'index.html';
+    function validate() {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+            window.location.replace('index.html');
+        }
     }
+
+    validate();
+    // Ensure check runs even when loaded from bfcache (Back/Forward Cache)
+    window.addEventListener('pageshow', (event) => {
+        if (event.persisted) {
+            validate();
+        }
+    });
 }
 
 // Logout Function
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('access_token');
-        window.location.href = 'index.html';
+        window.location.replace('index.html');
     }
 }
