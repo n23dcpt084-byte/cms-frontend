@@ -208,22 +208,78 @@ async function loadPosts() {
 }
 
 // 🟢 MODAL LOGIC
+// 🟢 MODAL LOGIC
 const modal = document.getElementById("postModal");
 const modalTitle = document.getElementById("modalTitle");
+const confirmModal = document.getElementById("confirmModal");
+let isMinimized = false;
 
 window.openCreateModal = function () {
+    if (isMinimized) {
+        modal.style.display = "block";
+        isMinimized = false;
+        return;
+    }
     resetForm();
     modalTitle.textContent = "Create New Post";
     modal.style.display = "block";
     quill.setSelection(0); // Focus
 };
 
+// Standard Close (Reset) - Used internally or by Discard
 window.closeModal = function () {
     modal.style.display = "none";
+    isMinimized = false;
     resetForm();
 };
 
-// Start Edit Mode (Modified for Modal)
+window.minimizeModal = function () {
+    modal.style.display = "none";
+    isMinimized = true;
+};
+
+// Request Close (Triggered by X)
+window.requestCloseModal = function () {
+    const hasContent = quill.getText().trim().length > 0 || document.getElementById('title').value.trim().length > 0;
+
+    if (hasContent) {
+        confirmModal.style.display = "block";
+    } else {
+        closeModal();
+    }
+};
+
+window.closeConfirmModal = function () {
+    confirmModal.style.display = "none";
+};
+
+window.discardAndClose = function () {
+    closeConfirmModal();
+    closeModal();
+};
+
+window.saveDraftAndClose = async function () {
+    document.getElementById('status').value = 'draft';
+    // Trigger submit manually or call logic? 
+    // Easier to reuse submit handler logic properly or just simulate submit
+    // Simulating submit via button
+    closeConfirmModal();
+
+    // We need to trigger the submit handler.
+    // Let's create a fake event or just call button click
+    const submitBtn = createPostForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.click();
+};
+
+// Close modal if clicked outside - DISABLED as requested
+// window.onclick = function (event) {
+//     if (event.target == modal) {
+//         // Do nothing or minimize? User asked to fix data loss. 
+//         // Doing nothing is safest.
+//     }
+// };
+
+// Start Edit Mode (Restored)
 window.startEdit = function (post) {
     isEditing = true;
     currentPostId = post._id;
@@ -245,13 +301,6 @@ window.startEdit = function (post) {
     }
 
     toggleScheduleField();
-};
-
-// Close modal if clicked outside
-window.onclick = function (event) {
-    if (event.target == modal) {
-        closeModal();
-    }
 };
 
 // 🟢 HANDLE FORM SUBMIT (CREATE OR UPDATE)

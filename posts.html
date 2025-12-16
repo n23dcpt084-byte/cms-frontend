@@ -87,7 +87,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Create New Post</h2>
-                <span class="close" onclick="closeModal()">&times;</span>
+                <div>
+                    <span class="minimize" onclick="minimizeModal()" title="Minimize">&#8722;</span>
+                    <span class="close" onclick="requestCloseModal()" title="Close">&times;</span>
+                </div>
             </div>
 
             <form id="createPostForm">
@@ -121,11 +124,26 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="secondary" onclick="closeModal()"
+                    <button type="button" class="secondary" onclick="requestCloseModal()"
                         style="width: auto; margin-right: 10px;">Cancel</button>
                     <button type="submit" style="width: auto;">Publish Post</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    </div>
+
+    <!-- 🟢 CONFIRMATION MODAL -->
+    <div id="confirmModal" class="modal" style="display: none; z-index: 1001;">
+        <div class="modal-content" style="max-width: 400px; text-align: center;">
+            <h3>Unsaved Changes</h3>
+            <p>Do you want to save this post as a draft or discard changes?</p>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+                <button onclick="saveDraftAndClose()" style="background: #f39c12;">Save Draft</button>
+                <button onclick="discardAndClose()" class="danger">Discard</button>
+                <button onclick="closeConfirmModal()" class="secondary">Keep Editing</button>
+            </div>
         </div>
     </div>
 
