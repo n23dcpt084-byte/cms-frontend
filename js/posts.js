@@ -328,11 +328,12 @@ if (createPostForm) {
             let publishedAt = null;
 
             if (status === 'scheduled') {
-                publishedAt = document.getElementById('publishedAt').value;
-                if (!publishedAt) {
+                const localDateVal = document.getElementById('publishedAt').value;
+                if (!localDateVal) {
                     alert("Please select a date and time for scheduling.");
                     return;
                 }
+                publishedAt = new Date(localDateVal).toISOString();
             } else if (status === 'published') {
                 publishedAt = new Date().toISOString();
             }
