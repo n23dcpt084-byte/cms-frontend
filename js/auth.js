@@ -56,12 +56,20 @@ function checkAuth() {
             validate();
         }
     });
+
+    // 🔒 DISABLE BROWSER BACK BUTTON
+    // Pushing the current state into history so "Back" just reloads the same state
+    window.history.pushState(null, "", window.location.href);
+    window.onpopstate = function () {
+        window.history.pushState(null, "", window.location.href);
+    };
 }
 
 // Logout Function
 function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('access_token');
+        // Use replace to clear the current history entry
         window.location.replace('index.html');
     }
 }
