@@ -67,6 +67,14 @@
         </div>
 
         <!-- Create Post Form -->
+        <!-- Status Filter Tabs -->
+        <div class="tabs" style="margin-bottom: 20px;">
+            <button class="tab active" onclick="filterPosts('all')">All</button>
+            <button class="tab" onclick="filterPosts('draft')">Drafts</button>
+            <button class="tab" onclick="filterPosts('scheduled')">Scheduled</button>
+            <button class="tab" onclick="filterPosts('published')">Published</button>
+        </div>
+
         <!-- List of Posts -->
         <div id="postsContainer">
             <!-- Posts will be injected here by JS -->
@@ -96,6 +104,20 @@
                 <div class="form-group">
                     <label>Image (Optional)</label>
                     <input type="file" id="imageFile" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label>Status</label>
+                    <select id="status" onchange="toggleScheduleField()">
+                        <option value="draft">Draft</option>
+                        <option value="published">Publish Now</option>
+                        <option value="scheduled">Schedule</option>
+                    </select>
+                </div>
+
+                <div id="scheduleField" class="form-group" style="display: none;">
+                    <label>Publish Date & Time</label>
+                    <input type="datetime-local" id="publishedAt">
                 </div>
 
                 <div class="modal-footer">

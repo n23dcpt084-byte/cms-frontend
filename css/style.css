@@ -193,3 +193,57 @@ button.danger {
     font-family: inherit !important;
     font-size: 16px !important;
 }
+
+/* 🟢 Tabs Styling */
+.tabs {
+    display: flex;
+    gap: 10px;
+}
+
+.tab {
+    background: white;
+    color: #333;
+    border: 1px solid #ddd;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+    width: auto;
+}
+
+.tab:hover {
+    background: #f1f1f1;
+}
+
+.tab.active {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+}
+
+/* 🟢 Status Badges */
+.badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+    display: inline-block;
+    margin-bottom: 5px;
+}
+
+.badge-draft {
+    background: #e0e0e0;
+    color: #555;
+}
+
+.badge-published {
+    background: #d4edda;
+    color: #155724;
+}
+
+.badge-scheduled {
+    background: #fff3cd;
+    color: #856404;
+}

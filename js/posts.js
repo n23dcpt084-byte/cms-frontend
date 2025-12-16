@@ -4,8 +4,59 @@
 let quill;
 document.addEventListener('DOMContentLoaded', () => {
     initQuill();
+    initQuill();
     loadPosts();
 });
+
+// 🟢 FILTER LOGIC
+let allPosts = []; // Store fetch result
+let currentFilter = 'all';
+
+window.filterPosts = function (status) {
+    currentFilter = status;
+
+    // Update Active Tab
+    document.querySelectorAll('.tab').forEach(btn => btn.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+
+    renderPosts();
+};
+
+function renderPosts() {
+    let filtered = allPosts;
+    if (currentFilter !== 'all') {
+        filtered = allPosts.filter(p => p.status === currentFilter);
+    }
+
+    postsContainer.innerHTML = '';
+    if (filtered.length === 0) {
+        postsContainer.innerHTML = '<p>No posts found.</p>';
+        return;
+    }
+
+    filtered.forEach(post => {
+        const card = document.createElement('div');
+        card.className = 'post-card';
+        // Handle image
+        const imgHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 200px; display:block; margin: 10px 0;">` : '';
+
+        // Status Badge
+        const status = post.status || 'draft';
+        const badgeClass = `badge-${status}`;
+
+        card.innerHTML = `
+            <span class="badge ${badgeClass}">${status}</span>
+            <h3>${escapeHtml(post.title)}</h3>
+            <div class="post-content">${post.content}</div>
+            ${imgHtml}
+            <div style="margin-top: 15px;">
+                <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="danger" onclick="deletePost('${post._id}')">Delete</button>
+            </div>
+        `;
+        postsContainer.appendChild(card);
+    });
+}
 
 function initQuill() {
     quill = new Quill('#editor-container', {
@@ -145,24 +196,10 @@ async function loadPosts() {
             return;
         }
 
-        postsContainer.innerHTML = '';
-        posts.forEach(post => {
-            const card = document.createElement('div');
-            card.className = 'post-card';
-            // Handle image
-            const imgHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 200px; display:block; margin: 10px 0;">` : '';
+        allPosts = posts; // Store for filtering
+        renderPosts(); // Initial Render
 
-            card.innerHTML = `
-                <h3>${escapeHtml(post.title)}</h3>
-                <div class="post-content">${post.content}</div>
-                ${imgHtml}
-                <div style="margin-top: 15px;">
-                    <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
-                    <button class="danger" onclick="deletePost('${post._id}')">Delete</button>
-                </div>
-            `;
-            postsContainer.appendChild(card);
-        });
+
 
     } catch (error) {
         postsContainer.innerHTML = '<p style="color:red">Failed to load posts.</p>';
@@ -198,6 +235,16 @@ window.startEdit = function (post) {
     // Populate Data
     document.getElementById('title').value = post.title;
     quill.root.innerHTML = post.content;
+    document.getElementById('status').value = post.status || 'draft';
+
+    // Date formatting for datetime-local
+    if (post.publishedAt) {
+        const date = new Date(post.publishedAt);
+        const localIsoString = new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        document.getElementById('publishedAt').value = localIsoString;
+    }
+
+    toggleScheduleField();
 };
 
 // Close modal if clicked outside
@@ -228,7 +275,20 @@ if (createPostForm) {
                 }
             }
 
-            const postData = { title, content };
+            const status = document.getElementById('status').value;
+            let publishedAt = null;
+
+            if (status === 'scheduled') {
+                publishedAt = document.getElementById('publishedAt').value;
+                if (!publishedAt) {
+                    alert("Please select a date and time for scheduling.");
+                    return;
+                }
+            } else if (status === 'published') {
+                publishedAt = new Date().toISOString();
+            }
+
+            const postData = { title, content, status, publishedAt };
             if (imageUrl) postData.imageUrl = imageUrl;
 
             if (isEditing) {
@@ -272,6 +332,17 @@ window.deletePost = async function (id) {
         loadPosts();
     } catch (error) {
         alert('Failed to delete post');
+    }
+};
+
+// 🟢 TOGGLE SCHEDULE FIELD
+window.toggleScheduleField = function () {
+    const status = document.getElementById('status').value;
+    const scheduleField = document.getElementById('scheduleField');
+    if (status === 'scheduled') {
+        scheduleField.style.display = 'block';
+    } else {
+        scheduleField.style.display = 'none';
     }
 };
 
