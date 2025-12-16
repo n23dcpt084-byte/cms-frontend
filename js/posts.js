@@ -4,7 +4,6 @@
 let quill;
 document.addEventListener('DOMContentLoaded', () => {
     initQuill();
-    initQuill();
     loadPosts();
 });
 
