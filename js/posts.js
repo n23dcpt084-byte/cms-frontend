@@ -5,7 +5,18 @@ let quill;
 document.addEventListener('DOMContentLoaded', () => {
     initQuill();
     loadPosts();
+    setInterval(updateClock, 1000);
+    updateClock();
 });
+
+function updateClock() {
+    const clock = document.getElementById('clock');
+    if (clock) {
+        const now = new Date();
+        // Format: DD/MM/YYYY HH:mm:ss
+        clock.textContent = now.toLocaleString('vi-VN', { hour12: false });
+    }
+}
 
 // 🟢 FILTER LOGIC
 let allPosts = []; // Store fetch result
@@ -332,7 +343,18 @@ if (createPostForm) {
                     alert("Please select a date and time for scheduling.");
                     return;
                 }
-                publishedAt = new Date(localDateVal).toISOString();
+
+                // 🟢 SAFE PARSING
+                // localDateVal is "YYYY-MM-DDTHH:mm"
+                const [datePart, timePart] = localDateVal.split('T');
+                const [year, month, day] = datePart.split('-').map(Number);
+                const [hour, minute] = timePart.split(':').map(Number);
+
+                // Create Date using Local Constructor
+                // Month is 0-indexed in JS
+                const localDateObj = new Date(year, month - 1, day, hour, minute);
+
+                publishedAt = localDateObj.toISOString();
             } else if (status === 'published') {
                 publishedAt = new Date().toISOString();
             }
