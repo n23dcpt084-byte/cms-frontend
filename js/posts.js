@@ -11,9 +11,6 @@ function initQuill() {
     quill = new Quill('#editor-container', {
         theme: 'snow',
         modules: {
-            imageResize: {
-                displaySize: true
-            },
             toolbar: {
                 container: [
                     [{ 'header': [1, 2, 3, false] }],
@@ -64,9 +61,13 @@ async function saveToServer(file) {
 }
 
 // Insert Image URL into Editor
+// Insert Image URL into Editor
 function insertToEditor(url) {
     const range = quill.getSelection();
-    quill.insertEmbed(range.index, 'image', url);
+    // Wrap image in resizable container
+    const imageHTML = `<img src="${url}" alt="Image" style="width: 100%; height: 100%; display: block;">`;
+    const wrappedHTML = getResizableWrapper(imageHTML);
+    quill.clipboard.dangerouslyPasteHTML(range.index, wrappedHTML);
 }
 
 // 🟢 Custom Video Handler
@@ -94,12 +95,35 @@ function selectVideo() {
 
     if (embedUrl) {
         const range = quill.getSelection(true); // true = focus
-        // Insert clean Iframe
-        const iframeHTML = `<iframe src="${embedUrl}" width="100%" height="400" frameborder="0" allowfullscreen></iframe><p><br></p>`;
-        quill.clipboard.dangerouslyPasteHTML(range.index, iframeHTML);
+        // Insert clean Iframe wrapped in resizable container
+        const iframeHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
+        const wrappedHTML = getResizableWrapper(iframeHTML, 'video');
+        quill.clipboard.dangerouslyPasteHTML(range.index, wrappedHTML);
     } else {
         alert("Invalid or Unsupported Video URL");
     }
+}
+
+// 🟢 Helper: Create Resizable Wrapper
+function getResizableWrapper(content, type = 'image') {
+    // Basic Style for Wrapper
+    const minWidth = type === 'video' ? '300px' : '100px';
+    const minHeight = type === 'video' ? '200px' : '100px';
+
+    return `
+    <div style="
+        resize: both; 
+        overflow: hidden; 
+        display: inline-block; 
+        border: 1px dashed #ccc; 
+        margin: 10px; 
+        vertical-align: top; 
+        position: relative;
+        min-width: ${minWidth};
+        min-height: ${minHeight};
+        max-width: 100%;">
+        ${content}
+    </div><p><br></p>`;
 }
 
 const postsContainer = document.getElementById('postsContainer');
