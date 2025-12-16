@@ -160,7 +160,7 @@ if (createPostForm) {
                 if (!imageUrl) delete postData.imageUrl; // Don't send undefined
                 await apiRequest('/posts', 'POST', postData, true);
                 alert('Post Created Successfully!');
-                createPostForm.reset();
+                resetForm();
             }
 
             loadPosts();
