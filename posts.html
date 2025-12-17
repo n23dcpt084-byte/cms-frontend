@@ -138,6 +138,27 @@
                     </p>
                 </div>
 
+                <!-- 🟢 SEO SETTINGS -->
+                <div class="form-group">
+                    <details style="background: #f9f9f9; padding: 10px; border-radius: 4px; border: 1px solid #ddd;">
+                        <summary style="cursor: pointer; font-weight: bold; color: #555;">SEO Settings (Optional)
+                        </summary>
+                        <div style="margin-top: 15px;">
+                            <label style="font-size: 13px;">SEO Title (leaves blank to use Post Title)</label>
+                            <input type="text" id="seoTitle" placeholder="Custom title for search engines...">
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 13px;">Meta Description</label>
+                            <textarea id="seoDescription" rows="2"
+                                placeholder="Brief summary for search results..."></textarea>
+                        </div>
+                        <div style="margin-top: 10px;">
+                            <label style="font-size: 13px;">Keywords (comma separated)</label>
+                            <input type="text" id="seoKeywords" placeholder="e.g. tech, new, cms">
+                        </div>
+                    </details>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="secondary btn-equal" onclick="requestCloseModal()"
                         style="margin-right: 10px;">Cancel</button>

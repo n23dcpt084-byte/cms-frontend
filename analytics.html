@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - CMS CK</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <style>
+        .analytics-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            cursor: pointer;
+            background: #f4f4f4;
+            user-select: none;
+        }
+
+        th:hover {
+            background: #eaeaea;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+            display: inline-block;
+        }
+
+        .badge-published {
+            background: #2ecc71;
+        }
+
+        .badge-draft {
+            background: #e67e22;
+        }
+
+        .badge-scheduled {
+            background: #3498db;
+        }
+
+        .badge-archived {
+            background: #95a5a6;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header style="background: #2c3e50; color: white; padding: 15px 20px;">
+        <div
+            style="display: flex; justify-content: space-between; align-items: center; max-width: 1200px; margin: 0 auto;">
+            <h2 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i data-feather="bar-chart-2"></i> Analytics
+            </h2>
+            <a href="dashboard.html"
+                style="color: white; text-decoration: none; display: flex; align-items: center; gap: 5px;">
+                <i data-feather="arrow-left"></i> Dashboard
+            </a>
+        </div>
+    </header>
+
+    <div class="analytics-container">
+        <div class="header">
+            <h3>Post Performance</h3>
+            <button class="secondary btn-equal" onclick="loadAnalytics()">Refresh</button>
+        </div>
+
+        <table id="analyticsTable">
+            <thead>
+                <tr>
+                    <th onclick="sortTable(0)">Post Title</th>
+                    <th onclick="sortTable(1)">Status</th>
+                    <th onclick="sortTable(2)">Views ↕</th>
+                    <th onclick="sortTable(3)">Publish Date</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                <tr>
+                    <td colspan="4" style="text-align: center;">Loading data...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        checkAuth(); // Ensure logged in
+        feather.replace();
+
+        let currentPosts = [];
+
+        async function loadAnalytics() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
+
+            try {
+                // Reuse existing findAll endpoint (requires Auth)
+                const posts = await apiRequest('/posts');
+                currentPosts = posts;
+                renderTable(posts);
+            } catch (error) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Failed to load data.</td></tr>';
+            }
+        }
+
+        function renderTable(posts) {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            if (posts.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No posts found.</td></tr>';
+                return;
+            }
+
+            posts.forEach(post => {
+                const tr = document.createElement('tr');
+                const date = post.publishedAt ? new Date(post.publishedAt).toLocaleString() : '-';
+                const views = post.viewCount || 0;
+
+                tr.innerHTML = `
+                    <td style="font-weight: 500;">${post.title}</td>
+                    <td><span class="badge badge-${post.status}">${post.status}</span></td>
+                    <td style="font-weight: bold;">${views}</td>
+                    <td style="color: #666;">${date}</td>
+                `;
+                tableBody.appendChild(tr);
+            });
+        }
+
+        // Simple Sort
+        let sortDir = 'desc';
+        function sortTable(colIndex) {
+            // Toggle direction
+            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+
+            const sorted = [...currentPosts].sort((a, b) => {
+                let valA, valB;
+
+                if (colIndex === 0) { // Title
+                    valA = a.title.toLowerCase();
+                    valB = b.title.toLowerCase();
+                } else if (colIndex === 1) { // Status
+                    valA = a.status;
+                    valB = b.status;
+                } else if (colIndex === 2) { // Views (Number)
+                    valA = a.viewCount || 0;
+                    valB = b.viewCount || 0;
+                } else if (colIndex === 3) { // Date
+                    valA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+                    valB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+                }
+
+                if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+                if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            renderTable(sorted);
+        }
+
+        // Initial Load
+        loadAnalytics();
+    </script>
+</body>
+
+</html>

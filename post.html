@@ -5,6 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading Post - CMS CK</title>
+    <meta name="description" content="CMS CK Article">
+    <meta name="keywords" content="CMS, Article">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Reading Post - CMS CK">
+    <meta property="og:description" content="CMS CK Article">
+    <meta property="og:type" content="article">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -100,6 +107,8 @@
                 <h1 id="postTitle"></h1>
                 <div class="article-meta">
                     Published on <span id="postDate"></span> by <span id="postAuthor">Admin</span>
+                    <br>
+                    <span style="font-size: 13px; color: #aaa;">👁️ <span id="viewCount">0</span> views</span>
                 </div>
             </header>
 
@@ -138,12 +147,25 @@
                 const post = await response.json();
 
                 // Render
-                document.title = post.title + ' - CMS CK';
+                // Render
+                const pageTitle = (post.seo && post.seo.title) ? post.seo.title : post.title;
+                document.title = pageTitle + ' - CMS CK';
+
+                // SEO Metadata
+                if (post.seo) {
+                    if (post.seo.description) {
+                        document.querySelector('meta[name="description"]').setAttribute("content", post.seo.description);
+                        document.querySelector('meta[property="og:description"]').setAttribute("content", post.seo.description);
+                    }
+                    if (post.seo.keywords) document.querySelector('meta[name="keywords"]').setAttribute("content", post.seo.keywords);
+                }
+
+                document.querySelector('meta[property="og:title"]').setAttribute("content", pageTitle);
+
                 document.getElementById('postTitle').innerText = post.title;
                 document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
                 document.getElementById('postAuthor').innerText = post.author || 'Admin';
-
-                /* Featured image removed from detail view as per request
+                document.getElementById('viewCount').innerText = post.viewCount || 0;
                 if (post.imageUrl) {
                     const img = document.getElementById('featuredImage');
                     img.src = post.imageUrl;

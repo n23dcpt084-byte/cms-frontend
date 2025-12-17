@@ -455,6 +455,17 @@ if (createPostForm) {
             }
 
             const postData = { title, content, status, publishedAt };
+
+            // 🟢 COLLECT SEO DATA
+            const seo = {
+                title: document.getElementById('seoTitle').value,
+                description: document.getElementById('seoDescription').value,
+                keywords: document.getElementById('seoKeywords').value
+            };
+            if (seo.title || seo.description || seo.keywords) {
+                postData.seo = seo;
+            }
+
             if (imageUrl) postData.imageUrl = imageUrl;
 
             if (isEditing) {
