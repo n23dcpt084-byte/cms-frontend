@@ -301,7 +301,10 @@ window.startEdit = function (post) {
     // Populate Data
     document.getElementById('title').value = post.title;
     quill.root.innerHTML = post.content;
+    document.getElementById('title').value = post.title;
+    quill.root.innerHTML = post.content;
     document.getElementById('status').value = post.status || 'draft';
+    updateSubmitButton(); // Update button text based on initial status
 
     // Date formatting for datetime-local
     if (post.publishedAt) {
@@ -356,10 +359,16 @@ if (createPostForm) {
 
                 // 🟢 VALIDATION: Check if time is in the past
                 const now = new Date();
+                const errorSpan = document.getElementById('scheduleError');
+                errorSpan.style.display = 'none'; // Reset
+
                 if (localDateObj <= now) {
-                    alert("Invalid Time: You cannot schedule a post in the past!\nPlease select a future date and time.");
+                    errorSpan.textContent = "Invalid Time: Please select a future date and time.";
+                    errorSpan.style.display = 'block';
                     return;
                 }
+
+                publishedAt = localDateObj.toISOString();
 
                 publishedAt = localDateObj.toISOString();
             } else if (status === 'published') {
@@ -396,8 +405,9 @@ function resetForm() {
     currentPostId = null;
     createPostForm.reset();
     quill.root.innerHTML = '';
-    if (submitBtn) submitBtn.textContent = 'Publish Post';
+    if (submitBtn) submitBtn.textContent = 'Publish Post'; // Default
     if (formTitle) formTitle.textContent = 'Create New Post';
+    updateSubmitButton(); // Ensure correct default text (e.g. Save Draft if default is draft)
 }
 
 // 🟢 DELETE POST
@@ -414,15 +424,37 @@ window.deletePost = async function (id) {
 };
 
 // 🟢 TOGGLE SCHEDULE FIELD
+// 🟢 TOGGLE SCHEDULE FIELD & BUTTON TEXT
 window.toggleScheduleField = function () {
     const status = document.getElementById('status').value;
     const scheduleField = document.getElementById('scheduleField');
+
     if (status === 'scheduled') {
         scheduleField.style.display = 'block';
     } else {
         scheduleField.style.display = 'none';
     }
+    updateSubmitButton();
 };
+
+function updateSubmitButton() {
+    const status = document.getElementById('status').value;
+    const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
+    if (!submitBtn) return;
+
+    if (status === 'draft') {
+        submitBtn.textContent = 'Save Draft';
+    } else if (status === 'scheduled') {
+        submitBtn.textContent = 'Set Post';
+    } else if (status === 'published') {
+        submitBtn.textContent = 'Publish Now';
+    }
+}
+
+// Ensure the helper works on init too - add listener to status change?
+// It's already called by toggleScheduleField which is called by startEdit.
+// But we need to call it when user manually changes status dropdown.
+document.getElementById('status').addEventListener('change', window.toggleScheduleField);
 
 // Helper to prevent XSS
 function escapeHtml(text) {
