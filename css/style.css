@@ -95,8 +95,8 @@ button.danger {
     font-size: 14px;
 }
 
-.btn-equal {
-    width: 140px;
+button.btn-equal {
+    width: 140px !important;
     /* Consistent width for buttons */
     text-align: center;
     display: inline-flex;
