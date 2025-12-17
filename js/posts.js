@@ -358,6 +358,9 @@ window.startEdit = function (post) {
 
     // Populate Data
     document.getElementById('title').value = post.title;
+    document.getElementById('slug').value = post.slug || '';
+    document.getElementById('sourceType').value = post.sourceType || 'original';
+    document.getElementById('sourceUrl').value = post.sourceUrl || '';
     quill.root.innerHTML = post.content;
 
     // 🟢 Restrict Status for Published Posts
@@ -474,7 +477,11 @@ if (createPostForm) {
                 publishedAt = new Date().toISOString();
             }
 
-            const postData = { title, content, status, publishedAt };
+            const slug = document.getElementById('slug').value || '';
+            const sourceType = document.getElementById('sourceType').value;
+            const sourceUrl = document.getElementById('sourceUrl').value;
+
+            const postData = { title, content, status, publishedAt, slug, sourceType, sourceUrl };
 
             // 🟢 COLLECT SEO DATA
             const seo = {
@@ -517,6 +524,9 @@ function resetForm() {
     isEditing = false;
     currentPostId = null;
     createPostForm.reset();
+    document.getElementById('slug').value = '';
+    document.getElementById('sourceType').value = 'original';
+    document.getElementById('sourceUrl').value = '';
     quill.root.innerHTML = '';
 
     const submitBtn = document.querySelector('#createPostForm button[type="submit"]');

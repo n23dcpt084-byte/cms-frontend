@@ -123,19 +123,28 @@
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
             const id = params.get('id');
+            const slug = params.get('slug'); // 🟢 SUPPORT SLUG
 
-            if (!id) {
-                document.getElementById('loading').textContent = 'Post not found (No ID provided).';
+            if (!id && !slug) {
+                document.getElementById('loading').textContent = 'Post not found (No ID or Slug provided).';
                 return;
             }
 
             try {
                 // Check if API_BASE_URL is defined in api.js
                 const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000';
-                let fetchUrl = `${baseUrl}/posts/public/${id}`;
+
+                // 🟢 DETERMINE ENDPOINT
+                let fetchUrl;
+                if (slug) {
+                    fetchUrl = `${baseUrl}/posts/public/${slug}`;
+                } else {
+                    fetchUrl = `${baseUrl}/posts/public/${id}`;
+                }
 
                 if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
-                    fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${id}`;
+                    // Start of workaround for finding correct endpoint if slug
+                    fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${slug || id}`;
                 }
 
                 const response = await fetch(fetchUrl);
