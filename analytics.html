@@ -116,6 +116,10 @@
                 <h2>Analytics & Stats</h2>
                 <!-- 🟢 Header Controls (Aligned) -->
                 <div style="display: flex; gap: 15px; align-items: center; height: 36px;">
+                    <!-- 🟢 Date Display -->
+                    <span id="headerDateDisplay"
+                        style="font-size: 18px; font-weight: bold; color: var(--header-text); margin-right: 15px; font-family: 'Segoe UI', sans-serif;">Loading...</span>
+
                     <!-- Guest Mode -->
                     <a href="index.html" style="text-decoration: none; display: flex; align-items: center; margin: 0;">
                         <button class="secondary"
@@ -172,6 +176,17 @@
             toast.className = "toast show";
             setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
         }
+
+        // Update Date Display
+        function updateHeaderDate() {
+            const el = document.getElementById('headerDateDisplay');
+            if (el) {
+                const now = new Date();
+                el.textContent = now.toLocaleDateString('en-GB'); // dd/mm/yyyy
+            }
+        }
+        updateHeaderDate();
+        setInterval(updateHeaderDate, 60000);
     </script>
 
     <script src="js/api.js"></script>

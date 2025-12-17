@@ -63,11 +63,11 @@
                 <div class="nav-item active">
                     <i>📝</i> Manage Posts
                 </div>
-                <a href="analytics.html" class="nav-item" style="text-decoration: none;">
-                    <i>📊</i> Analytics
-                </a>
                 <a href="shorts-manager.html" class="nav-item" style="text-decoration: none;">
                     <i>📱</i> Manage Shorts
+                </a>
+                <a href="analytics.html" class="nav-item" style="text-decoration: none;">
+                    <i>📊</i> Analytics
                 </a>
                 <div class="nav-item" onclick="showToast('Livestream feature is under development!')">
                     <i>🎥</i> Livestream
@@ -91,6 +91,10 @@
                 <h2>Manage Posts</h2>
                 <!-- 🟢 Header Controls (Aligned) -->
                 <div style="display: flex; gap: 15px; align-items: center; height: 36px;">
+                    <!-- 🟢 Date Display -->
+                    <span id="headerDateDisplay"
+                        style="font-size: 18px; font-weight: bold; color: var(--header-text); margin-right: 15px; font-family: 'Segoe UI', sans-serif;">Loading...</span>
+
                     <!-- Guest Mode -->
                     <a href="index.html" style="text-decoration: none; display: flex; align-items: center; margin: 0;">
                         <button class="secondary"
