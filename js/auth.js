@@ -60,7 +60,7 @@ function checkAuth() {
     function validate() {
         const token = localStorage.getItem('access_token');
         if (!token) {
-            window.location.replace('index.html');
+            window.location.replace('login.html');
             return;
         }
 
@@ -70,7 +70,7 @@ function checkAuth() {
             // Token expired or invalid
             alert('Session expired. Please login again.');
             localStorage.removeItem('access_token');
-            window.location.replace('index.html');
+            window.location.replace('login.html');
         }
     }
 
@@ -95,7 +95,7 @@ function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('access_token');
         // Use replace to clear the current history entry
-        window.location.replace('index.html');
+        window.location.replace('login.html');
     }
 }
 

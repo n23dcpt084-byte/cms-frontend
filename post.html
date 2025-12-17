@@ -5,13 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reading Post - CMS CK</title>
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
     <style>
         body {
             padding: 40px 20px;
             background: #fff;
             color: #333;
-            font-family: 'Georgia', serif;
+            font-family: 'Merriweather', serif;
             line-height: 1.8;
         }
 
@@ -85,7 +90,7 @@
 
     <div class="article-container">
         <div class="back-nav">
-            <a href="posts.html">&larr; Back to Articles</a>
+            <a href="index.html">&larr; Back to Articles</a>
         </div>
 
         <div id="loading" style="text-align: center; padding: 50px;">Loading article...</div>
@@ -98,12 +103,13 @@
                 </div>
             </header>
 
-            <img id="featuredImage" class="featured-image" alt="Featured">
+
 
             <div id="postContent" class="article-content"></div>
         </article>
     </div>
 
+    <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
@@ -115,8 +121,11 @@
             }
 
             try {
-                let fetchUrl = window.API_BASE_URL ? `${window.API_BASE_URL}/posts/public/${id}` : `http://localhost:3000/posts/public/${id}`;
-                if (window.location.hostname.includes('netlify')) {
+                // Check if API_BASE_URL is defined in api.js
+                const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000';
+                let fetchUrl = `${baseUrl}/posts/public/${id}`;
+
+                if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
                     fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${id}`;
                 }
 
@@ -134,11 +143,13 @@
                 document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
                 document.getElementById('postAuthor').innerText = post.author || 'Admin';
 
+                /* Featured image removed from detail view as per request
                 if (post.imageUrl) {
                     const img = document.getElementById('featuredImage');
                     img.src = post.imageUrl;
                     img.style.display = 'block';
                 }
+                */
 
                 document.getElementById('postContent').innerHTML = post.content;
 
@@ -148,7 +159,7 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('loading').innerHTML = `<p style="color:red">Error: ${error.message}</p>
-                <a href="posts.html">Return to Home</a>`;
+                <a href="index.html">Return to Home</a>`;
             }
         });
     </script>

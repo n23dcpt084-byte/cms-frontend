@@ -4,61 +4,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMS Admin Login - Multimedia Management</title>
-
-    <!-- SEO Meta Tags -->
-    <meta name="description"
-        content="Secure Admin Login for CMS CK - The ultimate Multimedia Content Management System for university projects.">
-    <meta name="keywords" content="CMS, Login, Admin, Multimedia, Content Management, NestJS">
-    <meta name="author" content="CMS CK Team">
-
-    <!-- Open Graph (Facebook/Zalo) -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="CMS CK - Admin Login">
-    <meta property="og:description" content="Access the secure Dashboard to manage multimedia content effectively.">
-    <meta property="og:url" content="https://cmsck.netlify.app/">
-    <meta property="og:image" content="https://cmsck.netlify.app/img/og-image.jpg">
-
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-    <!-- Google Analytics (GA4) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CMSPROJECT2025"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-CMSPROJECT2025');
-    </script>
-
+    <title>Latest Posts - CMS CK</title>
     <link rel="stylesheet" href="css/style.css">
-    <script src="js/auth.js" defer></script>
+    <style>
+        /* Override/Add styling for Public View */
+        body {
+            padding: 40px 20px;
+            background: #f9f9f9;
+        }
+
+        .public-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .public-card {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+            border: 1px solid #eee;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .public-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .public-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #ddd;
+        }
+
+        .public-card-content {
+            padding: 20px;
+        }
+
+        .public-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .public-card h2 {
+            font-size: 18px;
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+
+        .public-excerpt {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        header h1 {
+            margin: 0;
+            color: #2c3e50;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 10px;
+            text-decoration: none;
+            color: #3498db;
+        }
+    </style>
 </head>
 
 <body>
 
-    <div class="container" style="max-width: 400px; margin-top: 100px;">
-        <h1>CMS Admin Login</h1>
+    <header>
+        <h1>Latest Articles</h1>
+        <a href="login.html" class="back-link">Admin Login</a>
+    </header>
 
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required placeholder="admin@cms.com">
-            </div>
-
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required placeholder="********">
-            </div>
-
-            <button type="submit">Login</button>
-        </form>
+    <div id="postsContainer" class="public-grid">
+        <p style="text-align:center; width: 100%;">Loading posts...</p>
     </div>
 
-
+    <script src="js/api.js"></script>
     <script>
-        // Check if user is already logged in
-        checkAlreadyLoggedIn();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const container = document.getElementById('postsContainer');
+
+            try {
+                // Determine API URL
+                // Check if API_BASE_URL is defined in api.js (global scope)
+                let fetchUrl = (typeof API_BASE_URL !== 'undefined') ? `${API_BASE_URL}/posts/public` : 'http://localhost:3000/posts/public';
+
+                if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
+                    // Fallback/Hardcoded for typical production env if api.js doesn't set it perfectly
+                    fetchUrl = 'https://cms-ck-backend.railway.app/posts/public';
+                }
+
+                const response = await fetch(fetchUrl);
+                if (!response.ok) throw new Error('Failed to fetch');
+                const posts = await response.json();
+
+                container.innerHTML = '';
+
+                if (posts.length === 0) {
+                    container.innerHTML = '<p style="text-align:center;">No published posts yet.</p>';
+                    return;
+                }
+
+                posts.forEach(post => {
+                    const date = new Date(post.publishedAt).toLocaleDateString();
+                    // Strip HTML for excerpt
+                    const tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = post.content;
+                    const plainText = tempDiv.textContent || tempDiv.innerText || '';
+                    const excerpt = plainText.substring(0, 100) + '...';
+                    const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
+
+                    const html = `
+                        <a href="post.html?id=${post._id}" class="public-card">
+                            <img src="${img}" alt="${post.title}">
+                            <div class="public-card-content">
+                                <span class="public-date">${date}</span>
+                                <h2>${post.title}</h2>
+                                <div class="public-excerpt">${excerpt}</div>
+                            </div>
+                        </a>
+                    `;
+                    container.innerHTML += html;
+                });
+
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<p style="text-align:center; color:red;">Unable to load posts.</p>';
+            }
+        });
     </script>
 </body>
 

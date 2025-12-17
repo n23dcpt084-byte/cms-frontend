@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CMS Admin Login - Multimedia Management</title>
-    <!-- Canonical to prevent duplicate content SEO issues -->
-    <link rel="canonical" href="https://cmsck.netlify.app/" />
 
     <!-- SEO Meta Tags -->
     <meta name="description"
@@ -18,7 +16,7 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="CMS CK - Admin Login">
     <meta property="og:description" content="Access the secure Dashboard to manage multimedia content effectively.">
-    <meta property="og:url" content="https://cmsck.netlify.app/">
+    <meta property="og:url" content="https://cmsck.netlify.app/login.html">
     <meta property="og:image" content="https://cmsck.netlify.app/img/og-image.jpg">
 
     <!-- Favicon -->
@@ -34,14 +32,6 @@
     </script>
 
     <link rel="stylesheet" href="css/style.css">
-
-    <!-- Meta Refresh (Optional Fallback) -->
-    <script>
-        // Optional: Update URL to clean '/' if desired, but serving content is safer to avoid loops
-        if (window.location.pathname.endsWith('login.html')) {
-            window.history.replaceState(null, '', '/');
-        }
-    </script>
 </head>
 
 <body>
@@ -62,6 +52,11 @@
 
             <button type="submit">Login</button>
         </form>
+    </div>
+
+    <!-- 🟢 Back to Home -->
+    <div style="text-align: center; margin-top: 20px;">
+        <a href="index.html" style="text-decoration: none; color: #555;">&larr; Back to Home</a>
     </div>
 
     <script src="js/auth.js"></script>
