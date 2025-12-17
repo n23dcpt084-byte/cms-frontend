@@ -22,7 +22,13 @@ function updateClock() {
 let allPosts = []; // Store fetch result
 let currentFilter = 'all';
 
-window.filterPosts = function (status) {
+window.filterPosts = function (status) { // Status can be 'all', 'draft', 'scheduled', 'published', 'archived'
+    currentFilter = status;
+
+    // Update Active Tab // Status can be 'all', 'draft', 'scheduled', 'published', 'archived'
+    currentFilter = status;
+
+    // Update Active Tab
     currentFilter = status;
 
     // Update Active Tab
@@ -61,6 +67,7 @@ function renderPosts() {
             ${imgHtml}
             <div style="margin-top: 15px;">
                 <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="secondary" style="width: auto; margin-right: 10px; background-color: #f39c12;" onclick="archivePost('${post._id}')">Archive</button>
                 <button class="danger" onclick="deletePost('${post._id}')">Delete</button>
             </div>
         `;
@@ -301,9 +308,31 @@ window.startEdit = function (post) {
     // Populate Data
     document.getElementById('title').value = post.title;
     quill.root.innerHTML = post.content;
-    document.getElementById('title').value = post.title;
-    quill.root.innerHTML = post.content;
-    document.getElementById('status').value = post.status || 'draft';
+
+    // 🟢 Restrict Status for Published Posts
+    const statusSelect = document.getElementById('status');
+    statusSelect.value = post.status || 'draft';
+
+    if (post.status === 'published') {
+        statusSelect.disabled = true; // Lock status
+        // Create an info message if not exists
+        let info = document.getElementById('editInfo');
+        if (!info) {
+            info = document.createElement('p');
+            info.id = 'editInfo';
+            info.style.color = '#e67e22';
+            info.style.fontSize = '13px';
+            info.style.marginBottom = '10px';
+            statusSelect.parentNode.insertBefore(info, statusSelect.nextSibling);
+        }
+        info.textContent = "Note: You are editing a published post. Status/Scheduling cannot be changed.";
+        info.style.display = 'block';
+    } else {
+        statusSelect.disabled = false;
+        const info = document.getElementById('editInfo');
+        if (info) info.style.display = 'none';
+    }
+
     updateSubmitButton(); // Update button text based on initial status
 
     // Date formatting for datetime-local
@@ -420,6 +449,19 @@ window.deletePost = async function (id) {
         loadPosts();
     } catch (error) {
         alert('Failed to delete post');
+    }
+};
+
+// 🟢 ARCHIVE POST
+window.archivePost = async function (id) {
+    if (!confirm('This post will be moved to the archive and only admins can view it.\nAre you sure completely?')) return;
+
+    try {
+        await apiRequest(`/posts/${id}`, 'PATCH', { status: 'archived' }, true);
+        alert('Post Archived Successfully');
+        loadPosts();
+    } catch (error) {
+        alert('Failed to archive post: ' + error.message);
     }
 };
 

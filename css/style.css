@@ -287,3 +287,9 @@ button.danger {
     background: #fff3cd;
     color: #856404;
 }
+
+.badge-archived {
+    background: #bdc3c7;
+    color: #2c3e50;
+    text-decoration: line-through;
+}
