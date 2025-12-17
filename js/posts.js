@@ -354,6 +354,13 @@ if (createPostForm) {
                 // Month is 0-indexed in JS
                 const localDateObj = new Date(year, month - 1, day, hour, minute);
 
+                // 🟢 VALIDATION: Check if time is in the past
+                const now = new Date();
+                if (localDateObj <= now) {
+                    alert("Invalid Time: You cannot schedule a post in the past!\nPlease select a future date and time.");
+                    return;
+                }
+
                 publishedAt = localDateObj.toISOString();
             } else if (status === 'published') {
                 publishedAt = new Date().toISOString();

@@ -139,45 +139,68 @@ button.danger {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
+/* 🟢 MODAL HEADER & CONTROLS */
 .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
+    /* Align to top */
     border-bottom: 1px solid #eee;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    margin-top: -10px;
+    /* Pull closer to top */
+}
+
+/* Container for controls to ensure correct spacing */
+.modal-header div {
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    background-color: #e74c3c;
+    /* Red Box */
+    color: white;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    font-size: 20px;
     font-weight: bold;
     cursor: pointer;
+    transition: background 0.2s;
+}
+
+.close:hover {
+    background-color: #c0392b;
+    color: white;
+    text-decoration: none;
 }
 
 .minimize {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
+    color: #555;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    /* Larger minus sign */
     font-weight: bold;
     cursor: pointer;
-    margin-right: 15px;
-    /* Space between minimize and close */
+    border-radius: 4px;
+    transition: background 0.2s;
+    margin-right: 0;
+    /* Handled by gap in parent */
 }
 
-.minimize:hover,
-.minimize:focus {
+.minimize:hover {
+    background-color: #f0f0f0;
     color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
 }
 
 .modal-footer {
