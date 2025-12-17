@@ -163,11 +163,35 @@
                 } else {
                     posts.forEach(post => {
                         const date = new Date(post.publishedAt).toLocaleDateString();
-                        // Strip HTML
+
+                        // 🟢 PARSE MULTI-CHANNEL METADATA
+                        let mcIconsHtml = '';
+                        let cleanContent = post.content || '';
+                        const mcMatch = cleanContent.match(new RegExp('<!-- MC_DEMO_DATA:(.*?) -->'));
+                        if (mcMatch && mcMatch[1]) {
+                            try {
+                                const mcData = JSON.parse(mcMatch[1]);
+                                cleanContent = cleanContent.replace(/<!-- MC_DEMO_DATA:.*? -->/, ''); // Remove from excerpt
+
+                                // Build Icons
+                                mcIconsHtml = `<div style="display:flex; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid #eee; font-size:12px; color:#666;">
+                                    <span style="font-weight:bold;">Published on:</span>`;
+
+                                // Always Website
+                                mcIconsHtml += `<span title="Website">🌐 Web</span>`;
+                                if (mcData.facebook) mcIconsHtml += `<span title="Facebook (Demo)">📘 FB</span>`;
+                                if (mcData.tiktok) mcIconsHtml += `<span title="TikTok (Demo)">🎵 TT</span>`;
+                                if (mcData.youtube) mcIconsHtml += `<span title="YouTube (Demo)">▶️ YT</span>`;
+                                mcIconsHtml += `</div>`;
+                            } catch (e) { console.warn("MC Parse Error", e); }
+                        }
+
+                        // Remove HTML
                         const tempDiv = document.createElement('div');
-                        tempDiv.innerHTML = post.content;
+                        tempDiv.innerHTML = cleanContent;
                         const plainText = tempDiv.textContent || tempDiv.innerText || '';
                         const excerpt = plainText.substring(0, 100) + '...';
+
                         // Fallback image handling
                         const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
 
@@ -181,6 +205,7 @@
                                     <span class="public-date">${date}</span>
                                     <h2>${post.title}</h2>
                                     <div class="public-excerpt">${excerpt}</div>
+                                    ${mcIconsHtml}
                                 </div>
                             </a>
                         `;

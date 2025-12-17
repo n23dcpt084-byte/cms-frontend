@@ -82,15 +82,37 @@ function renderPosts() {
             imgHtml = `<img src="${post.imageUrl}" class="post-row-img" alt="Post">`;
         }
 
-        // Snippet (Strip HTMLContent)
-        const div = document.createElement('div');
-        div.innerHTML = post.content;
-        let text = div.textContent || div.innerText || '';
-        if (text.length > 80) text = text.substring(0, 80) + '...';
+
 
         // Status Badge
         const status = post.status || 'draft';
         const badgeClass = `badge-${status}`;
+
+        // 🟢 PRE-PARSE MULTI-CHANNEL METADATA
+        let mcStatusHtml = '';
+        let cleanContent = post.content || '';
+        const mcMatch = cleanContent.match(/<!-- MC_DEMO_DATA:(.*?) -->/);
+
+        if (mcMatch && mcMatch[1]) {
+            try {
+                const mcData = JSON.parse(mcMatch[1]);
+                // Remove metadata from preview text
+                cleanContent = cleanContent.replace(/<!-- MC_DEMO_DATA:.*? -->/, '');
+
+                // Build Icons
+                mcStatusHtml = `<div style="display:flex; gap:5px; margin-top:5px; font-size:12px; color:#555;">`;
+                if (mcData.facebook) mcStatusHtml += `<span title="Simulated: Facebook">📘 FB</span>`;
+                if (mcData.tiktok) mcStatusHtml += `<span title="Simulated: TikTok">🎵 TT</span>`;
+                if (mcData.youtube) mcStatusHtml += `<span title="Simulated: YouTube">▶️ YT</span>`;
+                mcStatusHtml += `</div>`;
+            } catch (e) { console.warn("MC Parse Error", e); }
+        }
+
+        // Snippet (Strip HTMLContent)
+        const div = document.createElement('div');
+        div.innerHTML = cleanContent; // Parse from clean content
+        let text = div.textContent || div.innerText || '';
+        if (text.length > 80) text = text.substring(0, 80) + '...';
 
         // 🟢 Archive/Unarchive Logic
         let archiveBtnHtml = '';
@@ -116,6 +138,7 @@ function renderPosts() {
                     <span class="badge ${badgeClass}" style="margin-bottom:0; font-size: 11px;">${status}</span>
                 </div>
                 <div class="post-row-snippet">${text}</div>
+                ${mcStatusHtml} 
             </div>
             <div class="post-row-actions" style="gap: 5px;">
                  <!-- Edit Button -->
@@ -439,7 +462,27 @@ window.startEdit = function (post) {
     } else {
         currentEmbeds = [];
     }
-    renderEmbeds();
+    // 🟢 LOAD MULTI-CHANNEL DATA
+    // Reset Checkboxes first
+    if (document.getElementById('channelFacebook')) document.getElementById('channelFacebook').checked = false;
+    if (document.getElementById('channelTikTok')) document.getElementById('channelTikTok').checked = false;
+    if (document.getElementById('channelYouTube')) document.getElementById('channelYouTube').checked = false;
+
+    let cleanContent = post.content || '';
+    const mcMatch = cleanContent.match(/<!-- MC_DEMO_DATA:(.*?) -->/);
+    if (mcMatch && mcMatch[1]) {
+        try {
+            const mcData = JSON.parse(mcMatch[1]);
+            if (document.getElementById('channelFacebook')) document.getElementById('channelFacebook').checked = mcData.facebook || false;
+            if (document.getElementById('channelTikTok')) document.getElementById('channelTikTok').checked = mcData.tiktok || false;
+            if (document.getElementById('channelYouTube')) document.getElementById('channelYouTube').checked = mcData.youtube || false;
+
+            // Remove from editor so user doesn't see comment
+            cleanContent = cleanContent.replace(/<!-- MC_DEMO_DATA:.*? -->/, '');
+        } catch (e) { console.warn("Load MC Data Error", e); }
+    }
+
+    quill.root.innerHTML = cleanContent;
 
     if (post.status === 'published') {
         statusSelect.disabled = true; // Lock status
@@ -630,7 +673,20 @@ if (createPostForm) {
         e.preventDefault();
 
         const title = document.getElementById('title').value;
-        const content = quill.root.innerHTML;
+        let content = quill.root.innerHTML;
+
+        // 🟢 COLLECT MULTI-CHANNEL DATA (DEMO)
+        const mcData = {
+            facebook: document.getElementById('channelFacebook') ? document.getElementById('channelFacebook').checked : false,
+            tiktok: document.getElementById('channelTikTok') ? document.getElementById('channelTikTok').checked : false,
+            youtube: document.getElementById('channelYouTube') ? document.getElementById('channelYouTube').checked : false
+        };
+        // Embed/Update metadata comment
+        // Remove old if exists (just in case)
+        content = content.replace(/<!-- MC_DEMO_DATA:.*? -->/, '');
+        // Append new
+        content += `<!-- MC_DEMO_DATA:${JSON.stringify(mcData)} -->`;
+
         const fileInput = document.getElementById('imageFile');
         let imageUrl = undefined; // Undefined means don't update image if not provided
 
