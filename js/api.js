@@ -2,7 +2,10 @@
 
 // 🟢 CONFIGURATION
 // Change to 'http://localhost:3000' if running locally
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE = window.location.hostname.includes('localhost')
+    ? 'http://localhost:3000'
+    : 'https://cms-ck.onrender.com';
+
 
 /**
  * Helper function to handle Fetch requests
@@ -37,7 +40,7 @@ async function apiRequest(endpoint, method = 'GET', body = null, authRequired = 
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
+        const response = await fetch(`${API_BASE}${endpoint}`, config);
 
         // Handle errors (like 401 Unauthorized or 403 Forbidden)
         if (!response.ok) {
@@ -75,11 +78,11 @@ async function apiUpload(endpoint, formData) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+        const response = await fetch(`${API_BASE}${endpoint}`, {
             method: 'POST',
             headers: {
-                // 'Content-Type': 'multipart/form-data' // ⚠️ Fetch sets this automatically with boundary
                 'Authorization': `Bearer ${token}`
+                // ❌ KHÔNG set Content-Type khi dùng FormData
             },
             body: formData
         });
@@ -91,17 +94,13 @@ async function apiUpload(endpoint, formData) {
                 window.location.replace('index.html');
                 return null;
             }
-            throw new Error('Upload failed with status: ' + response.status);
+            throw new Error('Upload failed');
         }
+
         return await response.json();
     } catch (error) {
         console.error('Upload Error:', error);
-
-        // Handle 401/403 specifically if possible users reports upload fail
-        // Since apiUpload uses fetch directly, we need to check the response object inside the try block
-        // But here we are in the catch block. 
-        // Let's modify the try block instead.
-        alert('Upload failed! Please check if you are logged in.');
+        alert('Upload failed: ' + error.message);
         throw error;
     }
 }
