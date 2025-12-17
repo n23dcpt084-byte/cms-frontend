@@ -1,6 +1,26 @@
 window.addEventListener('DOMContentLoaded', () => {
     loadPublicShorts();
+    setupKeyboardNavigation();
 });
+
+// 🟢 KEYBOARD NAVIGATION
+function setupKeyboardNavigation() {
+    window.addEventListener('keydown', (e) => {
+        const feed = document.getElementById('shortsFeed');
+        if (!feed) return;
+
+        // Use window height as scroll step (CSS Scroll Snap handles alignment)
+        const scrollAmount = feed.clientHeight;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            feed.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            feed.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+        }
+    });
+}
 
 let observer;
 

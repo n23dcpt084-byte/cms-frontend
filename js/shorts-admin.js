@@ -268,7 +268,6 @@ window.filterShorts = function (status) {
     } else {
         renderShorts(allShorts.filter(s => s.status === status));
     }
-}
 };
 
 function setMinScheduleDate() {
