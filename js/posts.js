@@ -20,6 +20,7 @@ function updateClock() {
 
 // 🟢 FILTER LOGIC
 let allPosts = []; // Store fetch result
+let currentEmbeds = []; // 🟢 Store active embeds for current form
 let currentFilter = 'all';
 
 window.filterPosts = function (status) { // Status can be 'all', 'draft', 'scheduled', 'published', 'archived'
@@ -363,6 +364,25 @@ window.startEdit = function (post) {
     const statusSelect = document.getElementById('status');
     statusSelect.value = post.status || 'draft';
 
+    // 🟢 POPULATE SEO fields
+    if (post.seo) {
+        document.getElementById('seoTitle').value = post.seo.title || '';
+        document.getElementById('seoDescription').value = post.seo.description || '';
+        document.getElementById('seoKeywords').value = post.seo.keywords || '';
+    } else {
+        document.getElementById('seoTitle').value = '';
+        document.getElementById('seoDescription').value = '';
+        document.getElementById('seoKeywords').value = '';
+    }
+
+    // 🟢 POPULATE EMBEDS
+    if (post.embeds && Array.isArray(post.embeds)) {
+        currentEmbeds = post.embeds;
+    } else {
+        currentEmbeds = [];
+    }
+    renderEmbeds();
+
     if (post.status === 'published') {
         statusSelect.disabled = true; // Lock status
         // Create an info message if not exists
@@ -466,6 +486,9 @@ if (createPostForm) {
                 postData.seo = seo;
             }
 
+            // 🟢 COLLECT EMBEDS
+            postData.embeds = currentEmbeds;
+
             if (imageUrl) postData.imageUrl = imageUrl;
 
             if (isEditing) {
@@ -495,9 +518,26 @@ function resetForm() {
     currentPostId = null;
     createPostForm.reset();
     quill.root.innerHTML = '';
-    if (submitBtn) submitBtn.textContent = 'Publish Post'; // Default
+
+    const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
+    if (submitBtn) submitBtn.textContent = 'Publish Post';
+
+    const formTitle = document.getElementById('modalTitle');
     if (formTitle) formTitle.textContent = 'Create New Post';
-    updateSubmitButton(); // Ensure correct default text (e.g. Save Draft if default is draft)
+
+    // Reset SEO
+    document.getElementById('seoTitle').value = '';
+    document.getElementById('seoDescription').value = '';
+    document.getElementById('seoKeywords').value = '';
+
+    // Reset Embeds
+    currentEmbeds = [];
+    renderEmbeds();
+    document.getElementById('mediaUrl').value = '';
+
+    document.getElementById('scheduleError').style.display = 'none';
+
+    updateSubmitButton();
 }
 
 // 🟢 DELETE POST
@@ -566,6 +606,61 @@ function updateSubmitButton() {
 // It's already called by toggleScheduleField which is called by startEdit.
 // But we need to call it when user manually changes status dropdown.
 document.getElementById('status').addEventListener('change', window.toggleScheduleField);
+
+// 🟢 MULTI-PLATFORM EMBEDS LOGIC
+
+window.addEmbed = function () {
+    const input = document.getElementById('mediaUrl');
+    const url = input.value.trim();
+    if (!url) return;
+
+    if (typeof EmbedParser === 'undefined') {
+        alert('EmbedParser not loaded!');
+        return;
+    }
+
+    const embedData = EmbedParser.parse(url);
+    if (!embedData) {
+        alert('Invalid URL');
+        return;
+    }
+
+    currentEmbeds.push(embedData);
+    input.value = '';
+    renderEmbeds();
+};
+
+window.removeEmbed = function (index) {
+    currentEmbeds.splice(index, 1);
+    renderEmbeds();
+};
+
+function renderEmbeds() {
+    const list = document.getElementById('embedsList');
+    list.innerHTML = '';
+
+    currentEmbeds.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.style.cssText = 'background: #f9f9f9; border: 1px solid #ddd; padding: 10px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between;';
+
+        let icon = '🔗';
+        if (item.platform === 'youtube') icon = '▶️';
+        if (item.platform === 'tiktok') icon = '🎵';
+        if (item.platform === 'facebook') icon = '📘';
+
+        div.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 10px; overflow: hidden;">
+                <span style="font-size: 20px;">${icon}</span>
+                <div style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    <a href="${item.url}" target="_blank" style="font-weight: bold; color: #333; text-decoration: none;">${item.platform.toUpperCase()} Link</a>
+                    <div style="font-size: 12px; color: #888; overflow: hidden; text-overflow: ellipsis;">${item.url}</div>
+                </div>
+            </div>
+            <button type="button" onclick="removeEmbed(${index})" style="background: none; border: none; color: red; font-size: 20px; cursor: pointer;">&times;</button>
+        `;
+        list.appendChild(div);
+    });
+}
 
 // Helper to prevent XSS
 function escapeHtml(text) {

@@ -175,6 +175,47 @@
 
                 document.getElementById('postContent').innerHTML = post.content;
 
+                // 🟢 RENDER EMBEDS
+                if (post.embeds && post.embeds.length > 0) {
+                    const embedsContainer = document.createElement('div');
+                    embedsContainer.style.marginTop = '40px';
+                    embedsContainer.style.borderTop = '1px solid #eee';
+                    embedsContainer.style.paddingTop = '20px';
+
+                    post.embeds.forEach(embed => {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.marginBottom = '30px';
+
+                        if (embed.platform === 'external') {
+                            wrapper.innerHTML = `
+                                <a href="${embed.url}" target="_blank" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 8px;">
+                                    <span style="font-size: 24px;">🔗</span>
+                                    <div>
+                                        <div style="font-weight: bold;">External Link</div>
+                                        <div style="font-size: 13px; color: #666; word-break: break-all;">${embed.url}</div>
+                                    </div>
+                                </a>
+                            `;
+                        } else {
+                            // Video Embeds (YouTube, TikTok, FB)
+                            // Responsive Iframe
+                            wrapper.innerHTML = `
+                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+                                    <iframe src="${embed.embedUrl}" 
+                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                                        frameborder="0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                        allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups">
+                                    </iframe>
+                                </div>
+                            `;
+                        }
+                        embedsContainer.appendChild(wrapper);
+                    });
+
+                    document.getElementById('article').appendChild(embedsContainer);
+                }
+
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('article').style.display = 'block';
 
