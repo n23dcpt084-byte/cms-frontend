@@ -137,14 +137,18 @@
                 // 🟢 DETERMINE ENDPOINT
                 let fetchUrl;
                 if (slug) {
-                    fetchUrl = `${baseUrl}/posts/public/${slug}`;
+                    fetchUrl = `${baseUrl}/posts/public/slug/${slug}`;
                 } else {
                     fetchUrl = `${baseUrl}/posts/public/${id}`;
                 }
 
                 if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
-                    // Start of workaround for finding correct endpoint if slug
-                    fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${slug || id}`;
+                    // Production Override
+                    if (slug) {
+                        fetchUrl = `https://cms-ck-backend.railway.app/posts/public/slug/${slug}`;
+                    } else {
+                        fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${id}`;
+                    }
                 }
 
                 const response = await fetch(fetchUrl);
