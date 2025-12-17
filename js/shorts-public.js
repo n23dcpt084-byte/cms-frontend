@@ -4,22 +4,34 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // 🟢 KEYBOARD NAVIGATION
+// 🟢 KEYBOARD & BUTTON NAVIGATION
 function setupKeyboardNavigation() {
-    window.addEventListener('keydown', (e) => {
-        const feed = document.getElementById('shortsFeed');
-        if (!feed) return;
+    const feed = document.getElementById('shortsFeed');
+    if (!feed) return;
 
-        // Use window height as scroll step (CSS Scroll Snap handles alignment)
+    // Helper to scroll
+    const scroll = (direction) => {
         const scrollAmount = feed.clientHeight;
+        feed.scrollBy({ top: direction * scrollAmount, behavior: 'smooth' });
+    };
 
+    // Keyboard
+    window.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            feed.scrollBy({ top: scrollAmount, behavior: 'smooth' });
+            scroll(1);
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            feed.scrollBy({ top: -scrollAmount, behavior: 'smooth' });
+            scroll(-1);
         }
     });
+
+    // Buttons (Visual Nav)
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+
+    if (prevBtn) prevBtn.addEventListener('click', () => scroll(-1));
+    if (nextBtn) nextBtn.addEventListener('click', () => scroll(1));
 }
 
 let observer;

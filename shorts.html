@@ -167,7 +167,53 @@
                 <p>Loading Shorts...</p>
             </div>
         </div>
+
+        <!-- 🟢 Navigation Controls -->
+        <div class="nav-controls">
+            <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-up"></i></button>
+            <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-down"></i></button>
+        </div>
     </div>
+
+    <style>
+        /* Floating Navigation Controls */
+        .nav-controls {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(5px);
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.1);
+        }
+
+        .nav-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
 
 </body>
 
