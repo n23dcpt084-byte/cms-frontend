@@ -351,6 +351,17 @@
             toast.className = "toast show";
             setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
         }
+
+        // Update Date Display
+        function updateHeaderDate() {
+            const el = document.getElementById('headerDateDisplay');
+            if (el) {
+                const now = new Date();
+                el.textContent = now.toLocaleDateString('en-GB'); // dd/mm/yyyy
+            }
+        }
+        updateHeaderDate();
+        setInterval(updateHeaderDate, 60000);
     </script>
 </body>
 
