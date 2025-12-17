@@ -95,71 +95,73 @@
     <!-- 🟢 SHORT VIDEO MODAL -->
     <!-- 🟢 SHORT VIDEO MODAL -->
     <div id="shortModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 550px; width: 90%;">
+        <div class="modal-content">
             <div class="modal-header">
                 <h2 id="modalTitle">Create New Short Video</h2>
                 <span class="close" onclick="closeModal()">&times;</span>
             </div>
 
             <form id="createShortForm">
-                <div class="form-group">
-                    <label>Caption (Required)</label>
-                    <textarea id="caption" rows="3" required placeholder="#Hashtags and description..."></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Platform</label>
-                    <select id="platform">
-                        <option value="upload">Upload File (Cloudinary)</option>
-                        <option value="youtube">YouTube Shorts (URL)</option>
-                        <option value="tiktok">TikTok (URL)</option>
-                        <option value="facebook">Facebook Reel (URL)</option>
-                    </select>
-                </div>
-
-                <!-- URL Input -->
-                <div id="urlInputContainer" class="form-group" style="display:none;">
-                    <label>Video URL</label>
-                    <input type="text" id="videoUrl" placeholder="https://...">
-                </div>
-
-                <!-- File Input -->
-                <div id="fileInputContainer" class="form-group">
-                    <label>Video File (MP4/MOV)</label>
-                    <input type="file" id="videoFile" accept="video/*">
-                </div>
-
-                <div class="form-group">
-                    <label>Thumbnail (Optional)</label>
-                    <!-- 🟢 Thumbnail Preview -->
-                    <div id="imagePreviewContainer"
-                        style="display: none; margin-bottom: 10px; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">
-                        <img id="currentImagePreview" src="" alt="Thumbnail"
-                            style="height: 80px; width: auto; border-radius: 4px; border: 1px solid #ccc;">
-                        <div>
-                            <button type="button" class="danger"
-                                style="padding: 5px 10px; font-size: 12px; height: auto;"
-                                onclick="removeThumbnail()">Remove Image</button>
-                        </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Caption (Required)</label>
+                        <textarea id="caption" rows="3" required placeholder="#Hashtags and description..."></textarea>
                     </div>
-                    <input type="file" id="thumbnailFile" accept="image/*">
-                </div>
 
-                <div class="form-group">
-                    <label>Status</label>
-                    <select id="status" onchange="toggleScheduleField()">
-                        <option value="draft">Draft</option>
-                        <option value="published">Published</option>
-                        <option value="scheduled">Schedule</option>
-                    </select>
-                </div>
+                    <div class="form-group">
+                        <label>Platform</label>
+                        <select id="platform">
+                            <option value="upload">Upload File (Cloudinary)</option>
+                            <option value="youtube">YouTube Shorts (URL)</option>
+                            <option value="tiktok">TikTok (URL)</option>
+                            <option value="facebook">Facebook Reel (URL)</option>
+                        </select>
+                    </div>
 
-                <div id="scheduleField" class="form-group" style="display: none;">
-                    <label>Publish Date & Time</label>
-                    <input type="datetime-local" id="publishedAt">
-                    <p style="font-size: 13px; color: #666; margin-top: 5px; font-style: italic;">
-                        Current Server Time: <span id="clock">Loading...</span> (GMT+7)
-                    </p>
+                    <!-- URL Input -->
+                    <div id="urlInputContainer" class="form-group" style="display:none;">
+                        <label>Video URL</label>
+                        <input type="text" id="videoUrl" placeholder="https://...">
+                    </div>
+
+                    <!-- File Input -->
+                    <div id="fileInputContainer" class="form-group">
+                        <label>Video File (MP4/MOV)</label>
+                        <input type="file" id="videoFile" accept="video/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Thumbnail (Optional)</label>
+                        <!-- 🟢 Thumbnail Preview -->
+                        <div id="imagePreviewContainer"
+                            style="display: none; margin-bottom: 10px; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">
+                            <img id="currentImagePreview" src="" alt="Thumbnail"
+                                style="height: 80px; width: auto; border-radius: 4px; border: 1px solid #ccc;">
+                            <div>
+                                <button type="button" class="danger"
+                                    style="padding: 5px 10px; font-size: 12px; height: auto;"
+                                    onclick="removeThumbnail()">Remove Image</button>
+                            </div>
+                        </div>
+                        <input type="file" id="thumbnailFile" accept="image/*">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status" onchange="toggleScheduleField()">
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                            <option value="scheduled">Schedule</option>
+                        </select>
+                    </div>
+
+                    <div id="scheduleField" class="form-group" style="display: none;">
+                        <label>Publish Date & Time</label>
+                        <input type="datetime-local" id="publishedAt">
+                        <p style="font-size: 13px; color: #666; margin-top: 5px; font-style: italic;">
+                            Current Server Time: <span id="clock">Loading...</span> (GMT+7)
+                        </p>
+                    </div>
                 </div>
 
                 <div class="modal-footer">

@@ -654,3 +654,120 @@ button.btn-equal {
     opacity: 1;
     bottom: 50px;
 }
+
+/* 🟢 SHORTS MODAL FIXES (Step 2730) */
+
+/* 1. Modal Overlay - Full Screen Fixed & Centered */
+#shortModal.modal {
+    display: none;
+    /* Toggled by JS */
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    /* Flex Centering */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Prevent body scroll interaction */
+}
+
+/* Show state override */
+#shortModal.modal[style*="block"] {
+    display: flex !important;
+    /* Force flex when JS sets block */
+}
+
+/* 2. Modal Container */
+#shortModal .modal-content {
+    background: white;
+    width: 95%;
+    max-width: 640px;
+    max-height: 90vh;
+    /* Viewport constraint */
+    border-radius: 12px;
+    margin: 0;
+    /* Centered by flex parent */
+    padding: 0;
+    /* Padding handled by children */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Clip children */
+    position: relative;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    /* Override global auto height if needed */
+    height: auto !important;
+}
+
+/* 3. Header */
+#shortModal .modal-header {
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    flex-shrink: 0;
+    /* Never shrink */
+}
+
+/* 4. Form Wrapper - Crucial for Flex Layout */
+#createShortForm {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    /* Constrain children */
+    flex: 1;
+    /* Fill remaining space */
+    min-height: 0;
+    /* Firefox flex fix */
+}
+
+/* 5. Modal Body - Scrollable Area */
+#shortModal .modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex-grow: 1;
+    /* Take available space */
+}
+
+/* 6. Footer - Sticky/Fixed at bottom */
+#shortModal .modal-footer {
+    padding: 15px 20px;
+    background: #f8f9fa;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 0;
+    /* Reset global style */
+}
+
+/* 7. Textarea Fixes */
+#shortModal textarea {
+    width: 100%;
+    max-width: 100%;
+    min-height: 80px;
+    resize: vertical;
+    /* Only vertical resize */
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+/* Dark Mode Support for Modal */
+[data-theme="dark"] #shortModal .modal-content {
+    background: var(--card-bg);
+    color: var(--text-color);
+}
+
+[data-theme="dark"] #shortModal .modal-footer {
+    background: #1a1a1a;
+    border-top-color: #333;
+}
+
+[data-theme="dark"] #shortModal .modal-header {
+    border-bottom-color: #333;
+}
