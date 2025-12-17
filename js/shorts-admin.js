@@ -268,40 +268,41 @@ window.filterShorts = function (status) {
     } else {
         renderShorts(allShorts.filter(s => s.status === status));
     }
-    // 🟢 THUMBNAIL LOGIC
-    window.handleThumbnailFile = function () {
-        const input = document.getElementById('thumbnailFile');
-        const file = input.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = function (e) {
-                document.getElementById('currentImagePreview').src = e.target.result;
-                document.getElementById('imagePreviewContainer').style.display = 'flex';
-            }
-            reader.readAsDataURL(file);
+};
+// 🟢 THUMBNAIL LOGIC
+window.handleThumbnailFile = function () {
+    const input = document.getElementById('thumbnailFile');
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            document.getElementById('currentImagePreview').src = e.target.result;
+            document.getElementById('imagePreviewContainer').style.display = 'flex';
         }
+        reader.readAsDataURL(file);
     }
+}
 
-    window.removeThumbnail = function () {
-        document.getElementById('thumbnailFile').value = '';
-        document.getElementById('imagePreviewContainer').style.display = 'none';
-        document.getElementById('currentImagePreview').src = '';
+window.removeThumbnail = function () {
+    document.getElementById('thumbnailFile').value = '';
+    document.getElementById('imagePreviewContainer').style.display = 'none';
+    document.getElementById('currentImagePreview').src = '';
+}
+
+// 🟢 SCHEDULE LOGIC
+window.toggleScheduleField = function () {
+    const status = document.getElementById('status').value;
+    const scheduleField = document.getElementById('scheduleField');
+    const saveBtn = document.getElementById('saveBtn'); // Must add ID to button in HTML
+
+    if (status === 'scheduled') {
+        scheduleField.style.display = 'block';
+        saveBtn.innerText = 'Schedule Short';
+    } else if (status === 'published') {
+        scheduleField.style.display = 'none';
+        saveBtn.innerText = 'Publish Short';
+    } else {
+        scheduleField.style.display = 'none';
+        saveBtn.innerText = 'Save Draft';
     }
-
-    // 🟢 SCHEDULE LOGIC
-    window.toggleScheduleField = function () {
-        const status = document.getElementById('status').value;
-        const scheduleField = document.getElementById('scheduleField');
-        const saveBtn = document.getElementById('saveBtn'); // Must add ID to button in HTML
-
-        if (status === 'scheduled') {
-            scheduleField.style.display = 'block';
-            saveBtn.innerText = 'Schedule Short';
-        } else if (status === 'published') {
-            scheduleField.style.display = 'none';
-            saveBtn.innerText = 'Publish Short';
-        } else {
-            scheduleField.style.display = 'none';
-            saveBtn.innerText = 'Save Draft';
-        }
-    }
+}
