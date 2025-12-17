@@ -151,24 +151,14 @@
             const container = document.getElementById('postsContainer');
 
             try {
-                // Determine API URL
-                let fetchUrl = (typeof API_BASE_URL !== 'undefined') ? `${API_BASE_URL}/posts/public` : 'http://localhost:3000/posts/public';
-
-                if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
-                    fetchUrl = 'https://cms-ck-backend.railway.app/posts/public';
-                }
-
-                // Add timestamp to prevent caching
-                const bustCache = `${fetchUrl}?t=${new Date().getTime()}`;
-
-                const response = await fetch(bustCache);
-                if (!response.ok) throw new Error('Failed to fetch');
-                const posts = await response.json();
+                // Use centralized apiRequest from api.js
+                // This handles API_BASE automatically (Local vs Production)
+                const posts = await apiRequest('/posts/public');
 
                 // Generate new HTML
                 let newHtml = '';
 
-                if (posts.length === 0) {
+                if (!posts || posts.length === 0) {
                     newHtml = '<p style="text-align:center;">No published posts yet.</p>';
                 } else {
                     posts.forEach(post => {
@@ -178,6 +168,7 @@
                         tempDiv.innerHTML = post.content;
                         const plainText = tempDiv.textContent || tempDiv.innerText || '';
                         const excerpt = plainText.substring(0, 100) + '...';
+                        // Fallback image handling
                         const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
 
                         // Use Slug if available
@@ -185,7 +176,7 @@
 
                         newHtml += `
                             <a href="${linkUrl}" class="public-card">
-                                <img src="${img}" alt="${post.title}">
+                                <img src="${img}" alt="${post.title}" loading="lazy">
                                 <div class="public-card-content">
                                     <span class="public-date">${date}</span>
                                     <h2>${post.title}</h2>

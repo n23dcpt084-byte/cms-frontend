@@ -2,7 +2,7 @@
 
 // 🟢 CONFIGURATION
 // Change to 'http://localhost:3000' if running locally
-const API_BASE = window.location.hostname.includes('localhost')
+const API_BASE = (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1'))
     ? 'http://localhost:3000'
     : 'https://cms-ck.onrender.com';
 
