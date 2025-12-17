@@ -2,7 +2,7 @@
 
 // 🟢 CONFIGURATION
 // Change to 'http://localhost:3000' if running locally
-const API_BASE_URL = 'https://cms-ck.onrender.com';
+const API_BASE_URL = 'http://localhost:3000';
 
 /**
  * Helper function to handle Fetch requests

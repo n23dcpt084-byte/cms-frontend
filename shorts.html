@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shorts - CMS Multimedia</title>
+    <script src="js/api.js" defer></script>
+    <script src="js/shorts-public.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: #000;
+            color: #fff;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            /* Hide main scrollbar */
+        }
+
+        /* Mobile Container */
+        .app-container {
+            max-width: 480px;
+            margin: 0 auto;
+            height: 100vh;
+            background: #1a1a1a;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header / Nav */
+        .shorts-header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 15px;
+            z-index: 10;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .home-btn {
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+            font-weight: bold;
+        }
+
+        /* Feed Container (Scroll Snap) */
+        .shorts-feed {
+            flex: 1;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE */
+        }
+
+        .shorts-feed::-webkit-scrollbar {
+            display: none;
+        }
+
+        /* Individual Short Item */
+        .short-item {
+            height: 100%;
+            width: 100%;
+            scroll-snap-align: start;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Video Object */
+        .short-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        iframe.short-embed {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        /* Overlay Info */
+        .overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+            padding-bottom: 40px;
+            /* Space for bottom nav if any */
+        }
+
+        .caption {
+            font-size: 15px;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+        }
+
+        .platform-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            backdrop-filter: blur(5px);
+            margin-bottom: 8px;
+        }
+
+        /* Play/Pause Indicator */
+        .play-icon {
+            position: absolute;
+            font-size: 60px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .short-item.paused .play-icon {
+            opacity: 0.5;
+        }
+
+        /* Message if no videos */
+        .no-shorts {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <header class="shorts-header">
+            <a href="index.html" class="home-btn"><i class="fas fa-chevron-left"></i> Home</a>
+            <span style="font-weight: bold; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">Shorts</span>
+            <div style="width: 50px;"></div> <!-- Spacer -->
+        </header>
+
+        <div class="shorts-feed" id="shortsFeed">
+            <div class="no-shorts">
+                <p>Loading Shorts...</p>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
