@@ -12,8 +12,34 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Form Submit
     const form = document.getElementById('createShortForm');
-    if (form) form.addEventListener('submit', handleFormSubmit);
+    if (form) {
+        form.addEventListener('submit', handleFormSubmit);
+        // Track changes for "dirty" check
+        form.addEventListener('change', () => { isFormDirty = true; });
+        form.addEventListener('input', () => { isFormDirty = true; });
+    }
+
+    // Thumbnail Preview Listener
+    const thumbInput = document.getElementById('thumbnailFile');
+    if (thumbInput) thumbInput.addEventListener('change', handleThumbnailFile);
+
+    // Initial Status Check for Button Text
+    toggleScheduleField();
+
+    // Start Clock
+    setInterval(updateClock, 1000);
+    updateClock();
 });
+
+let isFormDirty = false;
+
+function updateClock() {
+    const clock = document.getElementById('clock');
+    if (clock) {
+        const now = new Date();
+        clock.textContent = now.toLocaleString('vi-VN');
+    }
+}
 
 async function loadShorts() {
     const container = document.getElementById('shortsContainer');
@@ -88,11 +114,23 @@ function toggleVideoInput() {
 }
 
 window.openCreateModal = function () {
+    if (isFormDirty && !confirm('Discard unsaved changes?')) return;
+
     isEditing = false;
     currentShortId = null;
+    isFormDirty = false; // Reset dirty flag
+
     document.getElementById('createShortForm').reset();
     document.getElementById('shortModal').style.display = 'flex';
     document.getElementById('modalTitle').textContent = 'Create New Short Video';
+
+    // Reset Thumbnail UI
+    removeThumbnail();
+
+    // Reset Status & Schedule
+    document.getElementById('status').value = 'draft';
+    toggleScheduleField();
+
     toggleVideoInput();
 };
 
@@ -111,14 +149,43 @@ window.triggerEdit = function (id) {
         document.getElementById('videoUrl').value = short.mediaUrl;
     }
 
+    // 🟢 Restrict Status for Published Shorts (Mirroring Post Logic if desired, but user didn't explicitly ask to LOCK it, just add Schedule)
+    document.getElementById('status').value = short.status || 'draft';
+
+    // 🟢 Populate Schedule Time
+    if (short.publishedAt) {
+        const date = new Date(short.publishedAt);
+        date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+        document.getElementById('publishedAt').value = date.toISOString().slice(0, 16);
+    } else {
+        document.getElementById('publishedAt').value = '';
+    }
+
+    // 🟢 Populate Thumbnail Preview
+    const imgPreview = document.getElementById('imagePreviewContainer');
+    const currentImg = document.getElementById('currentImagePreview');
+    if (short.thumbnailUrl) {
+        imgPreview.style.display = 'flex';
+        currentImg.src = short.thumbnailUrl;
+    } else {
+        imgPreview.style.display = 'none';
+    }
+
+    toggleScheduleField();
     toggleVideoInput();
 
     document.getElementById('modalTitle').textContent = 'Edit Short Video';
     document.getElementById('shortModal').style.display = 'flex';
+
+    isFormDirty = false; // Reset after populate
 };
 
 window.closeModal = function () {
+    if (isFormDirty) {
+        if (!confirm('You have unsaved changes. Do you want to discard them?')) return;
+    }
     document.getElementById('shortModal').style.display = 'none';
+    isFormDirty = false;
 }
 
 window.deleteShort = async function (id) {
@@ -141,6 +208,7 @@ async function handleFormSubmit(e) {
     const videoFile = document.getElementById('videoFile').files[0];
     const thumbFile = document.getElementById('thumbnailFile').files[0];
     const urlInput = document.getElementById('videoUrl').value;
+    const publishedAt = document.getElementById('publishedAt').value; // Get Date
 
     if (platform === 'upload' && !videoFile && !isEditing) {
         alert("Please upload a video file.");
@@ -172,7 +240,7 @@ async function handleFormSubmit(e) {
             thumbnailUrl = res.url;
         }
 
-        const data = { caption, platform, status, mediaUrl, mediaType, thumbnailUrl };
+        const data = { caption, platform, status, mediaUrl, mediaType, thumbnailUrl, publishedAt };
 
         if (isEditing) {
             await apiRequest(`/shorts/${currentShortId}`, 'PATCH', data, true);
@@ -182,6 +250,7 @@ async function handleFormSubmit(e) {
 
         closeModal();
         loadShorts();
+        isFormDirty = false;
         alert('Short Video Saved!');
     } catch (err) {
         alert("Error saving: " + err.message);
@@ -199,4 +268,40 @@ window.filterShorts = function (status) {
     } else {
         renderShorts(allShorts.filter(s => s.status === status));
     }
-}
+    // 🟢 THUMBNAIL LOGIC
+    window.handleThumbnailFile = function () {
+        const input = document.getElementById('thumbnailFile');
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                document.getElementById('currentImagePreview').src = e.target.result;
+                document.getElementById('imagePreviewContainer').style.display = 'flex';
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    window.removeThumbnail = function () {
+        document.getElementById('thumbnailFile').value = '';
+        document.getElementById('imagePreviewContainer').style.display = 'none';
+        document.getElementById('currentImagePreview').src = '';
+    }
+
+    // 🟢 SCHEDULE LOGIC
+    window.toggleScheduleField = function () {
+        const status = document.getElementById('status').value;
+        const scheduleField = document.getElementById('scheduleField');
+        const saveBtn = document.getElementById('saveBtn'); // Must add ID to button in HTML
+
+        if (status === 'scheduled') {
+            scheduleField.style.display = 'block';
+            saveBtn.innerText = 'Schedule Short';
+        } else if (status === 'published') {
+            scheduleField.style.display = 'none';
+            saveBtn.innerText = 'Publish Short';
+        } else {
+            scheduleField.style.display = 'none';
+            saveBtn.innerText = 'Save Draft';
+        }
+    }
