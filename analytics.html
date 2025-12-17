@@ -148,6 +148,7 @@
                             <th onclick="sortTable(1)">Status</th>
                             <th onclick="sortTable(2)">Views ↕</th>
                             <th onclick="sortTable(3)">Publish Date</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody">
@@ -216,6 +217,9 @@
                     <td><span class="badge badge-${post.status}">${post.status}</span></td>
                     <td style="font-weight: bold;">${views}</td>
                     <td style="color: #666;">${date}</td>
+                    <td>
+                        <button onclick="deletePost('${post._id}')" style="background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;">Delete</button>
+                    </td>
                 `;
                 tableBody.appendChild(tr);
             });
@@ -250,6 +254,18 @@
             });
 
             renderTable(sorted);
+        }
+
+        // Delete Post Logic
+        async function deletePost(id) {
+            if (!confirm('Are you sure you want to delete this post?')) return;
+            try {
+                await apiRequest(`/posts/${id}`, 'DELETE', null, true);
+                alert('Post Deleted');
+                loadAnalytics();
+            } catch (error) {
+                alert('Failed to delete: ' + error.message);
+            }
         }
 
         // Initial Load

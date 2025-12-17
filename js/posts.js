@@ -71,83 +71,67 @@ function renderPosts() {
         return;
     }
 
-    // 🟢 List View for 'All' Tab
-    if (currentFilter === 'all') {
-        filtered.forEach(post => {
-            const row = document.createElement('div');
-            row.className = 'post-row';
-            // Removed global row.onclick
-
-            // Image
-            let imgHtml = `<div class="post-row-img">No Img</div>`;
-            if (post.imageUrl) {
-                imgHtml = `<img src="${post.imageUrl}" class="post-row-img" alt="Post">`;
-            }
-
-            // Snippet (Strip HTML)
-            const div = document.createElement('div');
-            div.innerHTML = post.content;
-            let text = div.textContent || div.innerText || '';
-            if (text.length > 80) text = text.substring(0, 80) + '...';
-
-            // Status Badge
-            const status = post.status || 'draft';
-            const badgeClass = `badge-${status}`;
-
-            row.innerHTML = `
-                ${imgHtml}
-                <div class="post-row-content">
-                    <div class="post-row-header">
-                        <span class="post-row-title">${escapeHtml(post.title)}</span>
-                        <span class="badge ${badgeClass}" style="margin-bottom:0; font-size: 11px;">${status}</span>
-                    </div>
-                    <div class="post-row-snippet">${text}</div>
-                </div>
-                <div class="post-row-actions" style="gap: 5px;">
-                     <!-- Edit Button -->
-                     <button class="btn-icon" title="Edit" onclick="triggerEdit('${post._id}'); event.stopPropagation();" style="color: #3498db;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                     </button>
-                     
-                     <!-- Archive Button -->
-                     <button class="btn-icon" title="Archive" onclick="archivePost('${post._id}'); event.stopPropagation();" style="color: #f1c40f;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-archive"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
-                     </button>
-
-                     <!-- Delete Button -->
-                     <button class="btn-icon" title="Delete" onclick="deletePost('${post._id}'); event.stopPropagation();" style="color: #e74c3c;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                     </button>
-                </div>
-            `;
-            postsContainer.appendChild(row);
-        });
-        return;
-    }
-
-    // 🟢 Card View for Other Tabs
+    // 🟢 Unified List View for All Tabs
     filtered.forEach(post => {
-        const card = document.createElement('div');
-        card.className = 'post-card';
-        // Handle image
-        const imgHtml = post.imageUrl ? `<img src="${post.imageUrl}" alt="Post Image" style="max-width: 200px; display:block; margin: 10px 0;">` : '';
+        const row = document.createElement('div');
+        row.className = 'post-row';
+
+        // Image
+        let imgHtml = `<div class="post-row-img">No Img</div>`;
+        if (post.imageUrl) {
+            imgHtml = `<img src="${post.imageUrl}" class="post-row-img" alt="Post">`;
+        }
+
+        // Snippet (Strip HTMLContent)
+        const div = document.createElement('div');
+        div.innerHTML = post.content;
+        let text = div.textContent || div.innerText || '';
+        if (text.length > 80) text = text.substring(0, 80) + '...';
 
         // Status Badge
         const status = post.status || 'draft';
         const badgeClass = `badge-${status}`;
 
-        card.innerHTML = `
-            <span class="badge ${badgeClass}">${status}</span>
-            <h3>${escapeHtml(post.title)}</h3>
-            <div class="post-content">${post.content}</div>
+        // 🟢 Archive/Unarchive Logic
+        let archiveBtnHtml = '';
+        if (status === 'archived') {
+            // Unarchive Button (Green, Restore Icon)
+            archiveBtnHtml = `
+             <button class="btn-icon" title="Unarchive" onclick="unarchivePost('${post._id}'); event.stopPropagation();" style="color: #2ecc71;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-rotate-ccw"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>
+             </button>`;
+        } else {
+            // Archive Button (Yellow, Archive Icon)
+            archiveBtnHtml = `
+             <button class="btn-icon" title="Archive" onclick="archivePost('${post._id}'); event.stopPropagation();" style="color: #f1c40f;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-archive"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+             </button>`;
+        }
+
+        row.innerHTML = `
             ${imgHtml}
-            <div style="margin-top: 15px;">
-                <button class="secondary btn-equal" style="margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
-                <button class="secondary btn-equal" style="margin-right: 10px; background-color: #f39c12;" onclick="archivePost('${post._id}')">Archive</button>
-                <button class="danger btn-equal" onclick="deletePost('${post._id}')">Delete</button>
+            <div class="post-row-content">
+                <div class="post-row-header">
+                    <span class="post-row-title">${escapeHtml(post.title)}</span>
+                    <span class="badge ${badgeClass}" style="margin-bottom:0; font-size: 11px;">${status}</span>
+                </div>
+                <div class="post-row-snippet">${text}</div>
+            </div>
+            <div class="post-row-actions" style="gap: 5px;">
+                 <!-- Edit Button -->
+                 <button class="btn-icon" title="Edit" onclick="triggerEdit('${post._id}'); event.stopPropagation();" style="color: #3498db;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                 </button>
+                 
+                 ${archiveBtnHtml}
+
+                 <!-- Delete Button -->
+                 <button class="btn-icon" title="Delete" onclick="deletePost('${post._id}'); event.stopPropagation();" style="color: #e74c3c;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                 </button>
             </div>
         `;
-        postsContainer.appendChild(card);
+        postsContainer.appendChild(row);
     });
 }
 
@@ -313,6 +297,7 @@ async function loadPosts() {
 
         allPosts = posts; // Store for filtering
         renderPosts(); // Initial Render
+        if (window.renderScheduledReminders) window.renderScheduledReminders(); // 🟢 Update Sidebar
 
 
 
@@ -414,6 +399,23 @@ window.startEdit = function (post) {
     document.getElementById('sourceType').value = post.sourceType || 'original';
     document.getElementById('sourceUrl').value = post.sourceUrl || '';
     document.getElementById('mediaRatio').value = post.mediaRatio || '16:9';
+
+    // 🟢 Show Existing Thumbnail if available
+    const imgPreview = document.getElementById('imagePreviewContainer');
+    const currentImg = document.getElementById('currentImagePreview');
+    const removeFlagInput = document.getElementById('removeImageFlag');
+
+    if (post.imageUrl) {
+        if (imgPreview) imgPreview.style.display = 'flex';
+        if (currentImg) currentImg.src = post.imageUrl;
+        if (removeFlagInput) removeFlagInput.value = 'false';
+    } else {
+        if (imgPreview) imgPreview.style.display = 'none';
+        if (removeFlagInput) removeFlagInput.value = 'false';
+    }
+
+    // Trigger ratio buttons update
+    const ratioButtons = document.querySelectorAll('.btn-ratio');
     quill.root.innerHTML = post.content;
 
     // 🟢 Restrict Status for Published Posts
@@ -634,6 +636,9 @@ if (createPostForm) {
 
         try {
             // 1. Upload Image (If selected)
+            // 1. Upload Image (If selected)
+            const removeFlag = document.getElementById('removeImageFlag').value === 'true';
+
             if (fileInput.files.length > 0) {
                 const formData = new FormData();
                 formData.append('file', fileInput.files[0]);
@@ -641,6 +646,9 @@ if (createPostForm) {
                 if (uploadResult && uploadResult.url) {
                     imageUrl = uploadResult.url;
                 }
+            } else if (removeFlag) {
+                // User wants to remove the image and didn't select a new one
+                imageUrl = null;
             }
 
             const status = document.getElementById('status').value;
@@ -701,7 +709,7 @@ if (createPostForm) {
             // 🟢 COLLECT EMBEDS
             postData.embeds = currentEmbeds;
 
-            if (imageUrl) postData.imageUrl = imageUrl;
+            if (imageUrl !== undefined) postData.imageUrl = imageUrl;
 
             if (isEditing) {
                 // UPDATE (PATCH)
@@ -779,6 +787,13 @@ function resetForm() {
         const formTitle = document.getElementById('modalTitle');
         if (formTitle) formTitle.textContent = 'Create New Post';
 
+        // 🟢 Reset Thumbnail Preview
+        const imgPreview = document.getElementById('imagePreviewContainer');
+        if (imgPreview) imgPreview.style.display = 'none';
+
+        const removeFlagReq = document.getElementById('removeImageFlag');
+        if (removeFlagReq) removeFlagReq.value = 'false';
+
         // Reset SEO
         if (document.getElementById('seoTitle')) document.getElementById('seoTitle').value = '';
         if (document.getElementById('seoDescription')) document.getElementById('seoDescription').value = '';
@@ -820,8 +835,9 @@ window.deletePost = async function (id) {
 };
 
 // 🟢 ARCHIVE POST
+// 🟢 ARCHIVE POST
 window.archivePost = async function (id) {
-    if (!confirm('This post will be moved to the archive and only admins can view it.\nAre you sure completely?')) return;
+    if (!confirm('This post will be moved to the archive and only admins can view it.\nAre you sure?')) return;
 
     try {
         await apiRequest(`/posts/${id}`, 'PATCH', { status: 'archived' }, true);
@@ -829,6 +845,19 @@ window.archivePost = async function (id) {
         loadPosts();
     } catch (error) {
         alert('Failed to archive post: ' + error.message);
+    }
+};
+
+// 🟢 UNARCHIVE POST
+window.unarchivePost = async function (id) {
+    if (!confirm('Restore this post to Draft?')) return;
+
+    try {
+        await apiRequest(`/posts/${id}`, 'PATCH', { status: 'draft' }, true);
+        alert('Post Restored to Drafts');
+        loadPosts();
+    } catch (error) {
+        alert('Failed to restore post: ' + error.message);
     }
 };
 
@@ -873,6 +902,29 @@ function updateSubmitButton() {
 // But we need to call it when user manually changes status dropdown.
 document.getElementById('status').addEventListener('change', window.toggleScheduleField);
 
+// 🟢 Thumbnail Live Preview
+const imgFileInput = document.getElementById('imageFile');
+if (imgFileInput) {
+    imgFileInput.addEventListener('change', function (e) {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const imgPreview = document.getElementById('imagePreviewContainer');
+                const currentImg = document.getElementById('currentImagePreview');
+                // Show preview
+                if (imgPreview) imgPreview.style.display = 'flex';
+                if (currentImg) currentImg.src = e.target.result;
+                // Reset remove flag
+                if (document.getElementById('removeImageFlag')) {
+                    document.getElementById('removeImageFlag').value = 'false';
+                }
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+}
+
 // 🟢 MULTI-PLATFORM EMBEDS LOGIC
 
 window.addEmbed = function () {
@@ -894,6 +946,58 @@ window.addEmbed = function () {
     currentEmbeds.push(embedData);
     input.value = '';
     renderEmbeds();
+};
+
+// 🟢 RENDER SCHEDULED REMINDERS (SIDEBAR)
+window.renderScheduledReminders = function () {
+    const section = document.getElementById('scheduledSidebarSection');
+    const list = document.getElementById('scheduledRemindersList');
+    if (!section || !list) return;
+
+    // Filter & Sort
+    const scheduled = allPosts.filter(p => p.status === 'scheduled');
+
+    if (scheduled.length === 0) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Sort by date ASC (Nearest first)
+    scheduled.sort((a, b) => new Date(a.publishedAt) - new Date(b.publishedAt));
+
+    list.innerHTML = '';
+    // Limit to 5
+    scheduled.slice(0, 5).forEach(post => {
+        const date = new Date(post.publishedAt);
+        // Format: "Dec 19, 10:00 AM"
+        const dateStr = date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+
+        const item = document.createElement('div');
+        item.style.cssText = 'background: rgba(255,255,255,0.1); padding: 8px; border-radius: 4px; border-left: 3px solid #f39c12; cursor: pointer; transition: background 0.2s;';
+        item.innerHTML = `
+            <div style="font-size: 12px; font-weight: bold; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(post.title)}</div>
+            <div style="font-size: 11px; color: #ccc; margin-top: 2px;">CLOCK: ${dateStr} - ${timeStr}</div>
+        `;
+        item.onclick = () => triggerEdit(post._id);
+        item.title = "Click to Edit";
+
+        list.appendChild(item);
+    });
+};
+
+// 🟢 REMOVE THUMBNAIL HELPER
+window.removeThumbnail = function () {
+    const imgPreview = document.getElementById('imagePreviewContainer');
+    if (imgPreview) imgPreview.style.display = 'none';
+
+    const removeFlag = document.getElementById('removeImageFlag');
+    if (removeFlag) removeFlag.value = 'true';
+
+    const fileInput = document.getElementById('imageFile');
+    if (fileInput) fileInput.value = ''; // Clear any selection
 };
 
 window.removeEmbed = function (index) {
