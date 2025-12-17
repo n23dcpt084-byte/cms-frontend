@@ -167,25 +167,39 @@
                 <p>Loading Shorts...</p>
             </div>
         </div>
+    </div>
 
-        <!-- 🟢 Navigation Controls -->
-        <div class="nav-controls">
-            <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-up"></i></button>
-            <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-down"></i></button>
-        </div>
+    <!-- 🟢 Navigation Controls (Moved Outside) -->
+    <div class="nav-controls">
+        <button class="nav-btn" id="prevBtn"><i class="fas fa-chevron-up"></i></button>
+        <button class="nav-btn" id="nextBtn"><i class="fas fa-chevron-down"></i></button>
     </div>
 
     <style>
         /* Floating Navigation Controls */
         .nav-controls {
-            position: absolute;
-            right: 20px;
+            position: fixed;
+            /* Fixed relative to viewport */
             top: 50%;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
             gap: 20px;
             z-index: 20;
+
+            /* 🟢 Desktop: Position outside the 480px app container */
+            left: calc(50% + 260px);
+            /* 480px/2 = 240px + 20px gap */
+        }
+
+        /* 🟢 Mobile: Fallback to overlay if screen is too narrow */
+        @media (max-width: 600px) {
+            .nav-controls {
+                position: absolute;
+                /* Revert to absolute inside relative/fixed context if needed, or keep fixed */
+                left: auto;
+                right: 10px;
+            }
         }
 
         .nav-btn {
