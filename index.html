@@ -101,59 +101,72 @@
     <script src="js/api.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
+            await loadPublicPosts();
+
+            // 🟢 AUTO-REFRESH EVERY 30 SECONDS
+            setInterval(loadPublicPosts, 30000);
+        });
+
+        async function loadPublicPosts() {
             const container = document.getElementById('postsContainer');
 
             try {
                 // Determine API URL
-                // Check if API_BASE_URL is defined in api.js (global scope)
                 let fetchUrl = (typeof API_BASE_URL !== 'undefined') ? `${API_BASE_URL}/posts/public` : 'http://localhost:3000/posts/public';
 
                 if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
-                    // Fallback/Hardcoded for typical production env if api.js doesn't set it perfectly
                     fetchUrl = 'https://cms-ck-backend.railway.app/posts/public';
                 }
 
-                const response = await fetch(fetchUrl);
+                // Add timestamp to prevent caching
+                const bustCache = `${fetchUrl}?t=${new Date().getTime()}`;
+
+                const response = await fetch(bustCache);
                 if (!response.ok) throw new Error('Failed to fetch');
                 const posts = await response.json();
 
-                container.innerHTML = '';
+                // Generate new HTML
+                let newHtml = '';
 
                 if (posts.length === 0) {
-                    container.innerHTML = '<p style="text-align:center;">No published posts yet.</p>';
-                    return;
+                    newHtml = '<p style="text-align:center;">No published posts yet.</p>';
+                } else {
+                    posts.forEach(post => {
+                        const date = new Date(post.publishedAt).toLocaleDateString();
+                        // Strip HTML
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = post.content;
+                        const plainText = tempDiv.textContent || tempDiv.innerText || '';
+                        const excerpt = plainText.substring(0, 100) + '...';
+                        const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
+
+                        // Use Slug if available
+                        const linkUrl = post.slug ? `post.html?slug=${post.slug}` : `post.html?id=${post._id}`;
+
+                        newHtml += `
+                            <a href="${linkUrl}" class="public-card">
+                                <img src="${img}" alt="${post.title}">
+                                <div class="public-card-content">
+                                    <span class="public-date">${date}</span>
+                                    <h2>${post.title}</h2>
+                                    <div class="public-excerpt">${excerpt}</div>
+                                </div>
+                            </a>
+                        `;
+                    });
                 }
 
-                posts.forEach(post => {
-                    const date = new Date(post.publishedAt).toLocaleDateString();
-                    // Strip HTML for excerpt
-                    const tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = post.content;
-                    const plainText = tempDiv.textContent || tempDiv.innerText || '';
-                    const excerpt = plainText.substring(0, 100) + '...';
-                    const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
-
-                    // 🟢 USE SLUG IF AVAILABLE
-                    const linkUrl = post.slug ? `post.html?slug=${post.slug}` : `post.html?id=${post._id}`;
-
-                    const html = `
-                        <a href="${linkUrl}" class="public-card">
-                            <img src="${img}" alt="${post.title}">
-                            <div class="public-card-content">
-                                <span class="public-date">${date}</span>
-                                <h2>${post.title}</h2>
-                                <div class="public-excerpt">${excerpt}</div>
-                            </div>
-                        </a>
-                    `;
-                    container.innerHTML += html;
-                });
+                // Update DOM only
+                container.innerHTML = newHtml;
 
             } catch (error) {
                 console.error(error);
-                container.innerHTML = '<p style="text-align:center; color:red;">Unable to load posts.</p>';
+                // Don't show error to user on auto-refresh failure to avoid annoyance
+                if (container.innerHTML === '' || container.innerHTML.includes('Loading')) {
+                    container.innerHTML = '<p style="text-align:center; color:red;">Unable to load posts.</p>';
+                }
             }
-        });
+        }
     </script>
 </body>
 
