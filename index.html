@@ -173,15 +173,15 @@
                                 const mcData = JSON.parse(mcMatch[1]);
                                 cleanContent = cleanContent.replace(/<!-- MC_DEMO_DATA:.*? -->/, ''); // Remove from excerpt
 
-                                // Build Icons
-                                mcIconsHtml = `<div style="display:flex; gap:10px; margin-top:10px; padding-top:10px; border-top:1px solid #eee; font-size:12px; color:#666;">
-                                    <span style="font-weight:bold;">Published on:</span>`;
+                                // Build Tags
+                                mcIconsHtml = `<div style="display:flex; gap:5px; margin-top:10px; padding-top:10px; border-top:1px solid #eee;">
+                                    <span style="font-size:12px; color:#666; align-self:center; margin-right:5px;">Published on:</span>`;
 
                                 // Always Website
-                                mcIconsHtml += `<span title="Website">🌐 Web</span>`;
-                                if (mcData.facebook) mcIconsHtml += `<span title="Facebook (Demo)">📘 FB</span>`;
-                                if (mcData.tiktok) mcIconsHtml += `<span title="TikTok (Demo)">🎵 TT</span>`;
-                                if (mcData.youtube) mcIconsHtml += `<span title="YouTube (Demo)">▶️ YT</span>`;
+                                mcIconsHtml += `<span class="badge" style="background:#ddd; color:#333; padding: 2px 6px; border-radius:4px; font-size:11px;">Website</span>`;
+                                if (mcData.facebook) mcIconsHtml += `<span class="badge" style="background:#1877F2; color:white; padding: 2px 6px; border-radius:4px; font-size:11px;">Facebook</span>`;
+                                if (mcData.tiktok) mcIconsHtml += `<span class="badge" style="background:#000000; color:white; padding: 2px 6px; border-radius:4px; font-size:11px;">TikTok</span>`;
+                                if (mcData.youtube) mcIconsHtml += `<span class="badge" style="background:#FF0000; color:white; padding: 2px 6px; border-radius:4px; font-size:11px;">YouTube</span>`;
                                 mcIconsHtml += `</div>`;
                             } catch (e) { console.warn("MC Parse Error", e); }
                         }
@@ -193,7 +193,17 @@
                         const excerpt = plainText.substring(0, 100) + '...';
 
                         // Fallback image handling
-                        const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
+                        let img = post.imageUrl;
+                        if (!img && post.content) {
+                            const imgMatch = post.content.match(/<img[^>]+src="([^">]+)"/);
+                            if (imgMatch && imgMatch[1]) {
+                                img = imgMatch[1];
+                            }
+                        }
+                        // Final Fallback
+                        if (!img) {
+                            img = 'https://via.placeholder.com/400x200?text=No+thumbnail';
+                        }
 
                         // Use Slug if available
                         const linkUrl = post.slug ? `post.html?slug=${post.slug}` : `post.html?id=${post._id}`;

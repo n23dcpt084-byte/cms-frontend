@@ -77,9 +77,19 @@ function renderPosts() {
         row.className = 'post-row';
 
         // Image
-        let imgHtml = `<div class="post-row-img">No Img</div>`;
-        if (post.imageUrl) {
-            imgHtml = `<img src="${post.imageUrl}" class="post-row-img" alt="Post">`;
+        let imgHtml = `<div class="post-row-img" style="color:#888; font-size:10px;">No thumbnail</div>`;
+        let thumbSrc = post.imageUrl;
+
+        if (!thumbSrc && post.content) {
+            // Try to find first image in content
+            const imgMatch = post.content.match(/<img[^>]+src="([^">]+)"/);
+            if (imgMatch && imgMatch[1]) {
+                thumbSrc = imgMatch[1];
+            }
+        }
+
+        if (thumbSrc) {
+            imgHtml = `<img src="${thumbSrc}" class="post-row-img" alt="Post">`;
         }
 
 
@@ -99,11 +109,11 @@ function renderPosts() {
                 // Remove metadata from preview text
                 cleanContent = cleanContent.replace(/<!-- MC_DEMO_DATA:.*? -->/, '');
 
-                // Build Icons
-                mcStatusHtml = `<div style="display:flex; gap:5px; margin-top:5px; font-size:12px; color:#555;">`;
-                if (mcData.facebook) mcStatusHtml += `<span title="Simulated: Facebook">📘 FB</span>`;
-                if (mcData.tiktok) mcStatusHtml += `<span title="Simulated: TikTok">🎵 TT</span>`;
-                if (mcData.youtube) mcStatusHtml += `<span title="Simulated: YouTube">▶️ YT</span>`;
+                // Build Tags
+                mcStatusHtml = `<div style="display:flex; gap:5px; margin-top:5px; font-size:12px;">`;
+                if (mcData.facebook) mcStatusHtml += `<span class="badge" style="background:#1877F2; color:white; font-weight:normal;">Facebook</span>`;
+                if (mcData.tiktok) mcStatusHtml += `<span class="badge" style="background:#000000; color:white; font-weight:normal;">TikTok</span>`;
+                if (mcData.youtube) mcStatusHtml += `<span class="badge" style="background:#FF0000; color:white; font-weight:normal;">YouTube</span>`;
                 mcStatusHtml += `</div>`;
             } catch (e) { console.warn("MC Parse Error", e); }
         }
