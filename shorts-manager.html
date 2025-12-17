@@ -100,9 +100,12 @@
                     </a>
 
                     <!-- Theme Toggle -->
-                    <button class="theme-toggle" onclick="toggleTheme()"
-                        style="width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: none; border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer;">
-                        🌙
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme"
+                        style="width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: none; border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer; padding: 0; margin: 0; line-height: 1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
                     </button>
 
                     <!-- Logout -->
@@ -117,7 +120,7 @@
                     const el = document.getElementById('headerDateDisplay');
                     if (el) {
                         const now = new Date();
-                        el.textContent = now.toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                        el.textContent = now.toLocaleDateString('en-GB'); // dd/mm/yyyy
                     }
                 }
                 updateHeaderDate();

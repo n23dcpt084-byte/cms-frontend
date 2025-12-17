@@ -116,6 +116,10 @@
                 <h2>Analytics & Stats</h2>
                 <!-- 🟢 Header Controls (Aligned) -->
                 <div style="display: flex; gap: 15px; align-items: center; height: 36px;">
+                    <!-- 🟢 Date Display -->
+                    <span id="headerDateDisplay"
+                        style="font-size: 14px; font-weight: 500; color: var(--text-color); margin-right: 10px;">Loading...</span>
+
                     <!-- Guest Mode -->
                     <a href="index.html" style="text-decoration: none; display: flex; align-items: center; margin: 0;">
                         <button class="secondary"
@@ -172,47 +176,59 @@
             toast.className = "toast show";
             setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
         }
-    </script>
 
-    <script src="js/api.js"></script>
-    <script src="js/auth.js"></script>
-    <script>
-        checkAuth(); // Ensure logged in
-        feather.replace();
-
-        let currentPosts = [];
-
-        async function loadAnalytics() {
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
-
-            try {
-                // Reuse existing findAll endpoint (requires Auth)
-                const posts = await apiRequest('/posts');
-                currentPosts = posts;
-                renderTable(posts);
-            } catch (error) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Failed to load data.</td></tr>';
+        // Update Date Display
+        function updateHeaderDate() {
+            const el = document.getElementById('headerDateDisplay');
+            if (el) {
+                const now = new Date();
+                el.textContent = now.toLocaleDateString('en-GB'); // dd/mm/yyyy
             }
         }
+        updateHeaderDate();
+        setInterval(updateHeaderDate, 60000);
+    </script>
+</body>
 
-        function renderTable(posts) {
-            const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = '';
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    checkAuth(); // Ensure logged in
+    feather.replace();
 
-            if (posts.length === 0) {
-                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No posts found.</td></tr>';
-                return;
-            }
+    let currentPosts = [];
 
-            posts.forEach(post => {
-                const tr = document.createElement('tr');
-                const date = post.publishedAt ? new Date(post.publishedAt).toLocaleString() : '-';
-                const views = post.viewCount || 0;
+    async function loadAnalytics() {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading...</td></tr>';
 
-                const img = post.imageUrl || 'https://via.placeholder.com/50';
+        try {
+            // Reuse existing findAll endpoint (requires Auth)
+            const posts = await apiRequest('/posts');
+            currentPosts = posts;
+            renderTable(posts);
+        } catch (error) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Failed to load data.</td></tr>';
+        }
+    }
 
-                tr.innerHTML = `
+    function renderTable(posts) {
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = '';
+
+        if (posts.length === 0) {
+            tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">No posts found.</td></tr>';
+            return;
+        }
+
+        posts.forEach(post => {
+            const tr = document.createElement('tr');
+            const date = post.publishedAt ? new Date(post.publishedAt).toLocaleString() : '-';
+            const views = post.viewCount || 0;
+
+            const img = post.imageUrl || 'https://via.placeholder.com/50';
+
+            tr.innerHTML = `
                     <td style="display: flex; align-items: center; gap: 10px;">
                         <img src="${img}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
                         <span style="font-weight: 500;">${post.title}</span>
@@ -224,56 +240,56 @@
                         <button onclick="deletePost('${post._id}')" style="background: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 4px; font-size: 12px; cursor: pointer;">Delete</button>
                     </td>
                 `;
-                tableBody.appendChild(tr);
-            });
-        }
+            tableBody.appendChild(tr);
+        });
+    }
 
-        // Simple Sort
-        let sortDir = 'desc';
-        function sortTable(colIndex) {
-            // Toggle direction
-            sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+    // Simple Sort
+    let sortDir = 'desc';
+    function sortTable(colIndex) {
+        // Toggle direction
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
 
-            const sorted = [...currentPosts].sort((a, b) => {
-                let valA, valB;
+        const sorted = [...currentPosts].sort((a, b) => {
+            let valA, valB;
 
-                if (colIndex === 0) { // Title
-                    valA = a.title.toLowerCase();
-                    valB = b.title.toLowerCase();
-                } else if (colIndex === 1) { // Status
-                    valA = a.status;
-                    valB = b.status;
-                } else if (colIndex === 2) { // Views (Number)
-                    valA = a.viewCount || 0;
-                    valB = b.viewCount || 0;
-                } else if (colIndex === 3) { // Date
-                    valA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-                    valB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-                }
-
-                if (valA < valB) return sortDir === 'asc' ? -1 : 1;
-                if (valA > valB) return sortDir === 'asc' ? 1 : -1;
-                return 0;
-            });
-
-            renderTable(sorted);
-        }
-
-        // Delete Post Logic
-        async function deletePost(id) {
-            if (!confirm('Are you sure you want to delete this post?')) return;
-            try {
-                await apiRequest(`/posts/${id}`, 'DELETE', null, true);
-                alert('Post Deleted');
-                loadAnalytics();
-            } catch (error) {
-                alert('Failed to delete: ' + error.message);
+            if (colIndex === 0) { // Title
+                valA = a.title.toLowerCase();
+                valB = b.title.toLowerCase();
+            } else if (colIndex === 1) { // Status
+                valA = a.status;
+                valB = b.status;
+            } else if (colIndex === 2) { // Views (Number)
+                valA = a.viewCount || 0;
+                valB = b.viewCount || 0;
+            } else if (colIndex === 3) { // Date
+                valA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+                valB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
             }
-        }
 
-        // Initial Load
-        loadAnalytics();
-    </script>
+            if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+            if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+        });
+
+        renderTable(sorted);
+    }
+
+    // Delete Post Logic
+    async function deletePost(id) {
+        if (!confirm('Are you sure you want to delete this post?')) return;
+        try {
+            await apiRequest(`/posts/${id}`, 'DELETE', null, true);
+            alert('Post Deleted');
+            loadAnalytics();
+        } catch (error) {
+            alert('Failed to delete: ' + error.message);
+        }
+    }
+
+    // Initial Load
+    loadAnalytics();
+</script>
 </body>
 
 </html>
