@@ -66,9 +66,9 @@ function renderPosts() {
             <div class="post-content">${post.content}</div>
             ${imgHtml}
             <div style="margin-top: 15px;">
-                <button class="secondary" style="width: auto; margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
-                <button class="secondary" style="width: auto; margin-right: 10px; background-color: #f39c12;" onclick="archivePost('${post._id}')">Archive</button>
-                <button class="danger" onclick="deletePost('${post._id}')">Delete</button>
+                <button class="secondary btn-equal" style="margin-right: 10px;" onclick='startEdit(${JSON.stringify(post).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="secondary btn-equal" style="margin-right: 10px; background-color: #f39c12;" onclick="archivePost('${post._id}')">Archive</button>
+                <button class="danger btn-equal" onclick="deletePost('${post._id}')">Delete</button>
             </div>
         `;
         postsContainer.appendChild(card);

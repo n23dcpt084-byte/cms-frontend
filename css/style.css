@@ -19,6 +19,7 @@
     --input-border: #555;
 }
 
+/* Basic Styling for CMS */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: var(--bg-color);
@@ -67,7 +68,6 @@ textarea {
     color: var(--text-color);
 }
 
-
 button {
     background-color: #3498db;
     color: white;
@@ -88,9 +88,11 @@ button.secondary {
     margin-top: 10px;
 }
 
-width: auto;
-padding: 5px 10px;
-font-size: 14px;
+button.danger {
+    background-color: #e74c3c;
+    width: auto;
+    padding: 5px 10px;
+    font-size: 14px;
 }
 
 .btn-equal {
@@ -129,7 +131,6 @@ font-size: 14px;
     background: rgba(255, 255, 255, 0.1);
 }
 
-
 .post-card {
     border: 1px solid var(--border-color);
     background-color: var(--card-bg);
@@ -137,7 +138,6 @@ font-size: 14px;
     margin-bottom: 15px;
     border-radius: 4px;
 }
-
 
 .post-card img {
     max-width: 100%;
@@ -187,18 +187,20 @@ font-size: 14px;
     animation: fadeIn 0.3s;
 }
 
-margin: 5% auto;
-/* 5% from the top and centered */
-padding: 20px;
-border: 1px solid var(--border-color);
-background-color: var(--card-bg);
-color: var(--text-color);
-width: 80%;
-/* Requested 80% width */
-max-width: 1400px;
-/* Increased max-width for large screens */
-border-radius: 8px;
-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+.modal-content {
+    background-color: var(--card-bg);
+    /* Use theme var */
+    margin: 5% auto;
+    /* 5% from the top and centered */
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    width: 80%;
+    /* Requested 80% width */
+    max-width: 1400px;
+    /* Increased max-width for large screens */
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* 🟢 MODAL HEADER & CONTROLS */

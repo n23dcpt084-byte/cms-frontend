@@ -41,6 +41,7 @@
 
     <script src="js/auth.js" defer></script>
     <script src="js/api.js" defer></script>
+    <script src="js/theme.js" defer></script>
     <script defer>
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof checkAuth === 'function') {
@@ -55,6 +56,8 @@
 <body>
 
     <button id="logoutBtn" onclick="logout()">Logout</button>
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()"
+        style="position: absolute; top: 20px; right: 100px; z-index: 100;">🌙</button>
 
     <div class="container">
         <div class="action-bar">
@@ -130,9 +133,9 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="secondary" onclick="requestCloseModal()"
-                        style="width: auto; margin-right: 10px;">Cancel</button>
-                    <button type="submit" style="width: auto;">Publish Post</button>
+                    <button type="button" class="secondary btn-equal" onclick="requestCloseModal()"
+                        style="margin-right: 10px;">Cancel</button>
+                    <button type="submit" class="btn-equal">Publish Post</button>
                 </div>
             </form>
         </div>
@@ -146,9 +149,9 @@
             <h3>Unsaved Changes</h3>
             <p>Do you want to save this post as a draft or discard changes?</p>
             <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                <button onclick="saveDraftAndClose()" style="background: #f39c12;">Save Draft</button>
-                <button onclick="discardAndClose()" class="danger">Discard</button>
-                <button onclick="closeConfirmModal()" class="secondary">Keep Editing</button>
+                <button onclick="saveDraftAndClose()" class="btn-equal" style="background: #f39c12;">Save Draft</button>
+                <button onclick="discardAndClose()" class="danger btn-equal">Discard</button>
+                <button onclick="closeConfirmModal()" class="secondary btn-equal">Keep Editing</button>
             </div>
         </div>
     </div>

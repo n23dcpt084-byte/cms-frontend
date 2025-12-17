@@ -38,6 +38,7 @@
 
     <link rel="stylesheet" href="css/style.css">
     <script src="js/auth.js" defer></script>
+    <script src="js/theme.js" defer></script>
     <script defer>
         // Check Auth on Page Load
         checkAuth();
@@ -47,6 +48,8 @@
 <body>
 
     <button id="logoutBtn" onclick="logout()">Logout</button>
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()"
+        style="position: absolute; top: 20px; right: 100px; z-index: 100;">🌙</button>
 
     <div class="container" style="text-align: center; margin-top: 50px;">
         <h1>Admin Dashboard</h1>
