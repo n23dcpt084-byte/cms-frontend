@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Post - CMS CK</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        body {
+            padding: 40px 20px;
+            background: #fff;
+            color: #333;
+            font-family: 'Georgia', serif;
+            line-height: 1.8;
+        }
+
+        .article-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .article-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .article-header h1 {
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 40px;
+            margin-bottom: 10px;
+            color: #222;
+        }
+
+        .article-meta {
+            color: #888;
+            font-size: 14px;
+            font-family: sans-serif;
+        }
+
+        .featured-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            display: none;
+        }
+
+        .article-content {
+            font-size: 18px;
+        }
+
+        .article-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .article-content iframe {
+            max-width: 100%;
+            margin: 20px 0;
+        }
+
+        .back-nav {
+            margin-bottom: 40px;
+            font-family: sans-serif;
+        }
+
+        .back-nav a {
+            text-decoration: none;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .back-nav a:hover {
+            color: #000;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="article-container">
+        <div class="back-nav">
+            <a href="posts.html">&larr; Back to Articles</a>
+        </div>
+
+        <div id="loading" style="text-align: center; padding: 50px;">Loading article...</div>
+
+        <article id="article" style="display: none;">
+            <header class="article-header">
+                <h1 id="postTitle"></h1>
+                <div class="article-meta">
+                    Published on <span id="postDate"></span> by <span id="postAuthor">Admin</span>
+                </div>
+            </header>
+
+            <img id="featuredImage" class="featured-image" alt="Featured">
+
+            <div id="postContent" class="article-content"></div>
+        </article>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+
+            if (!id) {
+                document.getElementById('loading').textContent = 'Post not found (No ID provided).';
+                return;
+            }
+
+            try {
+                let fetchUrl = window.API_BASE_URL ? `${window.API_BASE_URL}/posts/public/${id}` : `http://localhost:3000/posts/public/${id}`;
+                if (window.location.hostname.includes('netlify')) {
+                    fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${id}`;
+                }
+
+                const response = await fetch(fetchUrl);
+                if (!response.ok) {
+                    if (response.status === 404) throw new Error('Post not found');
+                    throw new Error('Error loading post');
+                }
+
+                const post = await response.json();
+
+                // Render
+                document.title = post.title + ' - CMS CK';
+                document.getElementById('postTitle').innerText = post.title;
+                document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
+                document.getElementById('postAuthor').innerText = post.author || 'Admin';
+
+                if (post.imageUrl) {
+                    const img = document.getElementById('featuredImage');
+                    img.src = post.imageUrl;
+                    img.style.display = 'block';
+                }
+
+                document.getElementById('postContent').innerHTML = post.content;
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('article').style.display = 'block';
+
+            } catch (error) {
+                console.error(error);
+                document.getElementById('loading').innerHTML = `<p style="color:red">Error: ${error.message}</p>
+                <a href="posts.html">Return to Home</a>`;
+            }
+        });
+    </script>
+</body>
+
+</html>
