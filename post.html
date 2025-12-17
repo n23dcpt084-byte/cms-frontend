@@ -178,41 +178,42 @@
             }
 
             try {
-                // Check if API_BASE_URL is defined in api.js
-                const baseUrl = (typeof API_BASE_URL !== 'undefined') ? API_BASE_URL : 'http://localhost:3000';
+                // Check if API_BASE is defined (from api.js)
+                if (typeof apiRequest !== 'function') {
+                    throw new Error('API Client not loaded. Check connection.');
+                }
 
                 // 🟢 DETERMINE ENDPOINT
-                let fetchUrl;
+                let endpoint;
                 if (slug) {
-                    fetchUrl = `${baseUrl}/posts/public/slug/${slug}`;
+                    endpoint = `/posts/public/slug/${slug}`;
                 } else {
-                    fetchUrl = `${baseUrl}/posts/public/${id}`;
+                    endpoint = `/posts/public/${id}`;
                 }
 
-                if (window.location.hostname.includes('netlify') || window.location.hostname.includes('onrender')) {
-                    // Production Override
-                    if (slug) {
-                        fetchUrl = `https://cms-ck-backend.railway.app/posts/public/slug/${slug}`;
-                    } else {
-                        fetchUrl = `https://cms-ck-backend.railway.app/posts/public/${id}`;
-                    }
-                }
+                console.log(`Fetching post from: ${endpoint}`); // Debug
 
-                const response = await fetch(fetchUrl);
-                if (!response.ok) {
-                    if (response.status === 404) throw new Error('Post not found');
-                    throw new Error('Error loading post');
-                }
+                // Use centralized apiRequest
+                const post = await apiRequest(endpoint);
 
-                const post = await response.json();
+                if (!post) {
+                    throw new Error('Post not found (Empty response)');
+                }
 
                 // Render
                 renderPost(post);
 
             } catch (error) {
                 console.error(error);
-                document.getElementById('loading').innerHTML = `<p style="color:red">Error: ${error.message}</p>
-                <a href="index.html">Return to Home</a>`;
+                document.getElementById('loading').innerHTML = `<p style="color:red; font-size: 18px; margin-bottom: 20px;">
+                    Error: ${error.message}
+                </p>
+                <div style="font-size: 14px; color: #666; margin-bottom: 20px;">
+                    If this persists, the server might be sleeping. Please wait 30s and refresh.
+                </div>
+                <button onclick="window.location.reload()" class="primary" style="padding: 10px 20px; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 4px;">Try Again</button>
+                <br><br>
+                <a href="index.html" style="text-decoration: underline; color: #555;">Return to Home</a>`;
             }
         });
 
