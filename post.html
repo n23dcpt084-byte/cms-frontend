@@ -166,12 +166,7 @@
                 document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
                 document.getElementById('postAuthor').innerText = post.author || 'Admin';
                 document.getElementById('viewCount').innerText = post.viewCount || 0;
-                if (post.imageUrl) {
-                    const img = document.getElementById('featuredImage');
-                    img.src = post.imageUrl;
-                    img.style.display = 'block';
-                }
-                */
+                // Featured image removed from detail view as per request
 
                 document.getElementById('postContent').innerHTML = post.content;
 
