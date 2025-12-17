@@ -44,18 +44,23 @@ function createShortItem(short) {
     let contentHtml = '';
 
     if (short.platform === 'upload') {
-        // Direct Video
-        contentHtml = `
-            <video src="${short.videoUrl}" 
-                class="short-video" 
-                loop muted playsinline
-                onclick="togglePlay(this)">
-            </video>
-            <i class="fas fa-play play-icon"></i>
-        `;
+        if (short.mediaType === 'image') {
+            // Direct Image
+            contentHtml = `<img src="${short.mediaUrl}" class="short-video" style="object-fit: cover;">`;
+        } else {
+            // Direct Video
+            contentHtml = `
+                <video src="${short.mediaUrl}" 
+                    class="short-video" 
+                    loop muted playsinline
+                    onclick="togglePlay(this)">
+                </video>
+                <i class="fas fa-play play-icon"></i>
+            `;
+        }
     } else if (short.platform === 'youtube') {
         // YouTube Embed
-        const videoId = getYouTubeId(short.videoUrl);
+        const videoId = getYouTubeId(short.mediaUrl);
         if (videoId) {
             // Note: Autoplay might be blocked by browser policy without mute
             const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&controls=0&rel=0&showinfo=0&loop=1&playlist=${videoId}`;
@@ -91,7 +96,7 @@ function renderExternalLink(short, errorMsg) {
             <p style="color:white; margin-bottom: 15px; font-weight: bold;">
                 ${errorMsg ? errorMsg : 'External Platform'}
             </p>
-            <a href="${short.videoUrl}" target="_blank" 
+            <a href="${short.mediaUrl}" target="_blank" 
                 style="background: #e74c3c; color: white; padding: 10px 20px; text-decoration: none; border-radius: 30px; font-weight: bold; display: inline-block;">
                 Watch on ${short.platform}
             </a>

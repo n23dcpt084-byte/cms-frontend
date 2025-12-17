@@ -108,7 +108,7 @@ window.triggerEdit = function (id) {
     document.getElementById('status').value = short.status;
 
     if (short.platform !== 'upload') {
-        document.getElementById('videoUrl').value = short.videoUrl;
+        document.getElementById('videoUrl').value = short.mediaUrl;
     }
 
     toggleVideoInput();
@@ -147,7 +147,8 @@ async function handleFormSubmit(e) {
         return;
     }
 
-    let videoUrl = isEditing ? (allShorts.find(s => s._id === currentShortId).videoUrl) : '';
+    let mediaUrl = isEditing ? (allShorts.find(s => s._id === currentShortId).mediaUrl) : '';
+    let mediaType = isEditing ? (allShorts.find(s => s._id === currentShortId).mediaType) : 'video'; // Default
     let thumbnailUrl = isEditing ? (allShorts.find(s => s._id === currentShortId).thumbnailUrl) : '';
 
     try {
@@ -156,9 +157,11 @@ async function handleFormSubmit(e) {
             const formData = new FormData();
             formData.append('file', videoFile);
             const res = await apiUpload('/upload', formData); // Use upload module
-            videoUrl = res.url;
+            mediaUrl = res.url;
+            mediaType = res.resource_type || 'video'; // image | video
         } else if (platform !== 'upload') {
-            videoUrl = urlInput;
+            mediaUrl = urlInput;
+            mediaType = 'video'; // External links are assumed video for now
         }
 
         // Upload Thumbnail if new file
@@ -169,7 +172,7 @@ async function handleFormSubmit(e) {
             thumbnailUrl = res.url;
         }
 
-        const data = { caption, platform, status, videoUrl, thumbnailUrl };
+        const data = { caption, platform, status, mediaUrl, mediaType, thumbnailUrl };
 
         if (isEditing) {
             await apiRequest(`/shorts/${currentShortId}`, 'PATCH', data, true);
