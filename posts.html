@@ -110,6 +110,28 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Slug (URL) - <small>Leave blank to auto-generate from title</small></label>
+                    <input type="text" id="slug" placeholder="e.g. my-awesome-post">
+                </div>
+
+                <!-- 🟢 SOURCE & THUMBNAIL -->
+                <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                    <div style="flex: 1;">
+                        <label>Source Type</label>
+                        <select id="sourceType">
+                            <option value="original">Original Content</option>
+                            <option value="youtube">YouTube Video</option>
+                            <option value="facebook">Facebook Video</option>
+                            <option value="tiktok">TikTok Video</option>
+                        </select>
+                    </div>
+                    <div style="flex: 2;">
+                        <label>Source URL (if not Original)</label>
+                        <input type="text" id="sourceUrl" placeholder="https://youtube.com/...">
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Content (Rich Editor)</label>
                     <div id="editor-container"></div>
                 </div>
