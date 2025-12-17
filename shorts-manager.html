@@ -77,6 +77,9 @@
                 <a href="analytics.html" class="nav-item" style="text-decoration: none;">
                     <i>📊</i> Analytics
                 </a>
+                <div class="nav-item" onclick="showToast('Livestream feature is under development!')">
+                    <i>🎥</i> Livestream
+                </div>
             </nav>
         </aside>
 
@@ -195,6 +198,17 @@
             </form>
         </div>
     </div>
+
+    <!-- 🟢 Toast Notification -->
+    <div id="toast" class="toast"></div>
+    <script>
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast show";
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
 
     <script src="js/shorts-admin.js" defer></script>
 </body>
