@@ -1,24 +1,46 @@
-/* Basic Styling for CMS */
+/* Dark Mode Variables */
+:root {
+    --bg-color: #f4f4f9;
+    --card-bg: #ffffff;
+    --text-color: #333333;
+    --header-text: #2c3e50;
+    --border-color: #eee;
+    --input-bg: #ffffff;
+    --input-border: #ddd;
+}
+
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text-color: #e0e0e0;
+    --header-text: #ffffff;
+    --border-color: #404040;
+    --input-bg: #333;
+    --input-border: #555;
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f4f9;
+    background-color: var(--bg-color);
     margin: 0;
     padding: 20px;
-    color: #333;
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
 }
 
 .container {
     max-width: 800px;
     margin: 0 auto;
-    background: white;
+    background: var(--card-bg);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    transition: background 0.3s;
 }
 
 h1,
 h2 {
-    color: #2c3e50;
+    color: var(--header-text);
     text-align: center;
 }
 
@@ -38,10 +60,13 @@ input[type="email"],
 textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
     box-sizing: border-box;
+    background-color: var(--input-bg);
+    color: var(--text-color);
 }
+
 
 button {
     background-color: #3498db;
@@ -63,19 +88,56 @@ button.secondary {
     margin-top: 10px;
 }
 
-button.danger {
-    background-color: #e74c3c;
-    width: auto;
-    padding: 5px 10px;
-    font-size: 14px;
+width: auto;
+padding: 5px 10px;
+font-size: 14px;
 }
 
+.btn-equal {
+    width: 140px;
+    /* Consistent width for buttons */
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Theme Toggle Button */
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 24px;
+    padding: 5px;
+    border-radius: 50%;
+    transition: background 0.3s;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+
 .post-card {
-    border: 1px solid #eee;
+    border: 1px solid var(--border-color);
+    background-color: var(--card-bg);
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 4px;
 }
+
 
 .post-card img {
     max-width: 100%;
@@ -125,27 +187,27 @@ button.danger {
     animation: fadeIn 0.3s;
 }
 
-.modal-content {
-    background-color: #fefefe;
-    margin: 5% auto;
-    /* 5% from the top and centered */
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
-    /* Requested 80% width */
-    max-width: 1400px;
-    /* Increased max-width for large screens */
-    border-radius: 8px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+margin: 5% auto;
+/* 5% from the top and centered */
+padding: 20px;
+border: 1px solid var(--border-color);
+background-color: var(--card-bg);
+color: var(--text-color);
+width: 80%;
+/* Requested 80% width */
+max-width: 1400px;
+/* Increased max-width for large screens */
+border-radius: 8px;
+box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 /* 🟢 MODAL HEADER & CONTROLS */
 .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    /* Align to top */
-    border-bottom: 1px solid #eee;
+    align-items: center;
+    /* Center vertically */
+    border-bottom: 1px solid var(--border-color);
     padding-bottom: 10px;
     margin-bottom: 15px;
     margin-top: -10px;
@@ -170,9 +232,13 @@ button.danger {
     align-items: center;
     border-radius: 4px;
     font-size: 20px;
+    line-height: 1;
+    /* Ensure X is centered */
     font-weight: bold;
     cursor: pointer;
     transition: background 0.2s;
+    padding: 0;
+    /* Remove default padding */
 }
 
 .close:hover {
@@ -241,9 +307,9 @@ button.danger {
 }
 
 .tab {
-    background: white;
-    color: #333;
-    border: 1px solid #ddd;
+    background: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
     padding: 8px 16px;
     border-radius: 20px;
     cursor: pointer;
