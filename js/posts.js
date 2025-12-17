@@ -210,6 +210,13 @@ function selectVideo() {
         let videoId = url.split('/video/')[1];
         if (videoId) videoId = videoId.split('?')[0];
         embedUrl = `https://www.tiktok.com/embed/v2/${videoId}`;
+    } else if (url.includes('drive.google.com')) {
+        // 🟢 GOOGLE DRIVE SUPPORT
+        // Pattern: drive.google.com/file/d/VIDEO_ID/view...
+        const match = url.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+        }
     }
 
     if (embedUrl) {

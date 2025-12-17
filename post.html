@@ -183,6 +183,44 @@
 
                 document.getElementById('postContent').innerHTML = post.content;
 
+                // 🟢 RENDER MAIN MEDIA (SourceUrl)
+                if (post.sourceUrl && post.sourceType !== 'original') {
+                    let mainEmbedUrl = '';
+                    if (post.sourceType === 'youtube' && (post.sourceUrl.includes('youtube') || post.sourceUrl.includes('youtu.be'))) {
+                        let vId = post.sourceUrl.split('v=')[1] || post.sourceUrl.split('/').pop();
+                        vId = vId.split('&')[0];
+                        mainEmbedUrl = `https://www.youtube.com/embed/${vId}`;
+                    } else if (post.sourceType === 'facebook') {
+                        mainEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(post.sourceUrl)}&show_text=false&t=0`;
+                    } else if (post.sourceType === 'tiktok') {
+                        let vId = post.sourceUrl.split('/video/')[1];
+                        if (vId) vId = vId.split('?')[0];
+                        mainEmbedUrl = `https://www.tiktok.com/embed/v2/${vId}`;
+                    } else if (post.sourceType === 'googledrive' && post.sourceUrl.includes('drive.google.com')) {
+                        const match = post.sourceUrl.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+                        if (match && match[1]) {
+                            mainEmbedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+                        }
+                    }
+
+                    if (mainEmbedUrl) {
+                        const mainMediaDiv = document.createElement('div');
+                        mainMediaDiv.style.marginBottom = '30px';
+                        mainMediaDiv.innerHTML = `
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+                                <iframe src="${mainEmbedUrl}" 
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                                    frameborder="0" allowfullscreen>
+                                </iframe>
+                            </div>
+                            <p style="text-align:center; font-style:italic; color:#666; font-size:12px; margin-top:5px;">Source: ${post.sourceType}</p>
+                        `;
+                        const article = document.getElementById('article');
+                        const content = document.getElementById('postContent');
+                        article.insertBefore(mainMediaDiv, content);
+                    }
+                }
+
                 // 🟢 RENDER EMBEDS
                 if (post.embeds && post.embeds.length > 0) {
                     const embedsContainer = document.createElement('div');
