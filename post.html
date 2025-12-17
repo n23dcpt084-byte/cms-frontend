@@ -206,8 +206,16 @@
                     if (mainEmbedUrl) {
                         const mainMediaDiv = document.createElement('div');
                         mainMediaDiv.style.marginBottom = '30px';
+
+                        // 🟢 Calculate Aspect Ratio
+                        let paddingBottom = '56.25%'; // Default 16:9
+                        if (post.mediaRatio === '4:3') paddingBottom = '75%';
+                        if (post.mediaRatio === '1:1') paddingBottom = '100%';
+                        if (post.mediaRatio === '9:16') paddingBottom = '177.77%'; // TikTok
+                        if (post.mediaRatio === '21:9') paddingBottom = '42.85%';
+
                         mainMediaDiv.innerHTML = `
-                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+                            <div style="position: relative; padding-bottom: ${paddingBottom}; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
                                 <iframe src="${mainEmbedUrl}" 
                                     style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
                                     frameborder="0" allowfullscreen>

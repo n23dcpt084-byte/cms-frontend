@@ -368,6 +368,7 @@ window.startEdit = function (post) {
     document.getElementById('slug').value = post.slug || '';
     document.getElementById('sourceType').value = post.sourceType || 'original';
     document.getElementById('sourceUrl').value = post.sourceUrl || '';
+    document.getElementById('mediaRatio').value = post.mediaRatio || '16:9';
     quill.root.innerHTML = post.content;
 
     // 🟢 Restrict Status for Published Posts
@@ -534,6 +535,7 @@ function resetForm() {
     document.getElementById('slug').value = '';
     document.getElementById('sourceType').value = 'original';
     document.getElementById('sourceUrl').value = '';
+    document.getElementById('mediaRatio').value = '16:9';
     quill.root.innerHTML = '';
 
     const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
