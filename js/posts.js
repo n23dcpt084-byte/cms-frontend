@@ -520,9 +520,17 @@ window.archivePost = async function (id) {
 window.toggleScheduleField = function () {
     const status = document.getElementById('status').value;
     const scheduleField = document.getElementById('scheduleField');
+    const dateInput = document.getElementById('publishedAt');
 
     if (status === 'scheduled') {
         scheduleField.style.display = 'block';
+
+        // 🟢 RESTRICT PAST DATES
+        const now = new Date();
+        // Adjust to local timezone ISO string
+        const localIsoString = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+        dateInput.min = localIsoString;
+
     } else {
         scheduleField.style.display = 'none';
     }
