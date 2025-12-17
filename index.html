@@ -133,19 +133,18 @@
                     const excerpt = plainText.substring(0, 100) + '...';
                     const img = post.imageUrl || 'https://via.placeholder.com/400x200?text=No+Image';
 
-                    const html = `
                     // 🟢 USE SLUG IF AVAILABLE
-                    const linkUrl = post.slug ? `post.html?slug = ${ post.slug }` : `post.html ? id = ${ post._id } `;
+                    const linkUrl = post.slug ? `post.html?slug=${post.slug}` : `post.html?id=${post._id}`;
 
                     const html = `
-                        < a href = "${linkUrl}" class="public-card" >
+                        <a href="${linkUrl}" class="public-card">
                             <img src="${img}" alt="${post.title}">
-                                <div class="public-card-content">
-                                    <span class="public-date">${date}</span>
-                                    <h2>${post.title}</h2>
-                                    <div class="public-excerpt">${excerpt}</div>
-                                </div>
-                            </a>
+                            <div class="public-card-content">
+                                <span class="public-date">${date}</span>
+                                <h2>${post.title}</h2>
+                                <div class="public-excerpt">${excerpt}</div>
+                            </div>
+                        </a>
                     `;
                     container.innerHTML += html;
                 });
