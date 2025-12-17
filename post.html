@@ -21,10 +21,11 @@
     <style>
         body {
             padding: 40px 20px;
-            background: #fff;
-            color: #333;
+            background: var(--card-bg);
+            color: var(--text-color);
             font-family: 'Merriweather', serif;
             line-height: 1.8;
+            transition: background 0.3s, color 0.3s;
         }
 
         .article-container {
@@ -41,7 +42,7 @@
             font-family: 'Segoe UI', sans-serif;
             font-size: 40px;
             margin-bottom: 10px;
-            color: #222;
+            color: var(--header-text);
         }
 
         .article-meta {
@@ -88,16 +89,27 @@
         }
 
         .back-nav a:hover {
-            color: #000;
+            color: var(--header-text);
         }
     </style>
+    <script src="js/theme.js" defer></script>
 </head>
 
 <body>
 
+    <!-- 🟢 Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()"
+        style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="Toggle Theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="feather feather-moon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
+
     <div class="article-container">
         <div class="back-nav">
-            <a href="index.html">&larr; Back to Articles</a>
+            <a href="index.html" id="backLink">&larr; Back to Articles</a>
         </div>
 
         <div id="loading" style="text-align: center; padding: 50px;">Loading article...</div>
@@ -122,6 +134,41 @@
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
             const params = new URLSearchParams(window.location.search);
+
+            // 🟢 PREVIEW MODE HANDLER
+            if (params.get('preview') === 'true') {
+                const previewData = localStorage.getItem('cms_preview_data');
+                if (previewData) {
+                    const post = JSON.parse(previewData);
+
+                    // Show Preview Banner
+                    const banner = document.createElement('div');
+                    banner.innerHTML = 'PREVIEW MODE - Unsaved Content';
+                    banner.style.cssText = 'background: #003366; color: white; text-align: center; padding: 10px; position: fixed; top: 0; left: 0; width: 100%; z-index: 1000; font-weight: bold;';
+                    document.body.prepend(banner);
+                    document.body.style.marginTop = '40px';
+
+                    // 🟢 Update Back Link to "Quit Preview"
+                    const backLink = document.getElementById('backLink');
+                    if (backLink) {
+                        backLink.innerHTML = '&times; Quit Preview';
+                        backLink.href = '#';
+                        backLink.onclick = (e) => {
+                            e.preventDefault();
+                            window.close();
+                        };
+                        backLink.style.color = '#e74c3c'; // Red color for quit
+                        backLink.style.fontWeight = 'bold';
+                    }
+
+                    // Render Data
+                    renderPost(post);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('article').style.display = 'block';
+                    return; // 🟢 STOP HERE (Don't fetch API)
+                }
+            }
+
             const id = params.get('id');
             const slug = params.get('slug'); // 🟢 SUPPORT SLUG
 
@@ -160,118 +207,7 @@
                 const post = await response.json();
 
                 // Render
-                // Render
-                const pageTitle = (post.seo && post.seo.title) ? post.seo.title : post.title;
-                document.title = pageTitle + ' - CMS CK';
-
-                // SEO Metadata
-                if (post.seo) {
-                    if (post.seo.description) {
-                        document.querySelector('meta[name="description"]').setAttribute("content", post.seo.description);
-                        document.querySelector('meta[property="og:description"]').setAttribute("content", post.seo.description);
-                    }
-                    if (post.seo.keywords) document.querySelector('meta[name="keywords"]').setAttribute("content", post.seo.keywords);
-                }
-
-                document.querySelector('meta[property="og:title"]').setAttribute("content", pageTitle);
-
-                document.getElementById('postTitle').innerText = post.title;
-                document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
-                document.getElementById('postAuthor').innerText = post.author || 'Admin';
-                document.getElementById('viewCount').innerText = post.viewCount || 0;
-                // Featured image removed from detail view as per request
-
-                document.getElementById('postContent').innerHTML = post.content;
-
-                // 🟢 RENDER MAIN MEDIA (SourceUrl)
-                if (post.sourceUrl && post.sourceType !== 'original') {
-                    let mainEmbedUrl = '';
-                    if (post.sourceType === 'youtube' && (post.sourceUrl.includes('youtube') || post.sourceUrl.includes('youtu.be'))) {
-                        let vId = post.sourceUrl.split('v=')[1] || post.sourceUrl.split('/').pop();
-                        vId = vId.split('&')[0];
-                        mainEmbedUrl = `https://www.youtube.com/embed/${vId}`;
-                    } else if (post.sourceType === 'facebook') {
-                        mainEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(post.sourceUrl)}&show_text=false&t=0`;
-                    } else if (post.sourceType === 'tiktok') {
-                        let vId = post.sourceUrl.split('/video/')[1];
-                        if (vId) vId = vId.split('?')[0];
-                        mainEmbedUrl = `https://www.tiktok.com/embed/v2/${vId}`;
-                    } else if (post.sourceType === 'googledrive' && post.sourceUrl.includes('drive.google.com')) {
-                        const match = post.sourceUrl.match(/file\/d\/([a-zA-Z0-9_-]+)/);
-                        if (match && match[1]) {
-                            mainEmbedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
-                        }
-                    }
-
-                    if (mainEmbedUrl) {
-                        const mainMediaDiv = document.createElement('div');
-                        mainMediaDiv.style.marginBottom = '30px';
-
-                        // 🟢 Calculate Aspect Ratio
-                        let paddingBottom = '56.25%'; // Default 16:9
-                        if (post.mediaRatio === '4:3') paddingBottom = '75%';
-                        if (post.mediaRatio === '1:1') paddingBottom = '100%';
-                        if (post.mediaRatio === '9:16') paddingBottom = '177.77%'; // TikTok
-                        if (post.mediaRatio === '21:9') paddingBottom = '42.85%';
-
-                        mainMediaDiv.innerHTML = `
-                            <div style="position: relative; padding-bottom: ${paddingBottom}; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
-                                <iframe src="${mainEmbedUrl}" 
-                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-                                    frameborder="0" allowfullscreen>
-                                </iframe>
-                            </div>
-                            <p style="text-align:center; font-style:italic; color:#666; font-size:12px; margin-top:5px;">Source: ${post.sourceType}</p>
-                        `;
-                        const article = document.getElementById('article');
-                        const content = document.getElementById('postContent');
-                        article.insertBefore(mainMediaDiv, content);
-                    }
-                }
-
-                // 🟢 RENDER EMBEDS
-                if (post.embeds && post.embeds.length > 0) {
-                    const embedsContainer = document.createElement('div');
-                    embedsContainer.style.marginTop = '40px';
-                    embedsContainer.style.borderTop = '1px solid #eee';
-                    embedsContainer.style.paddingTop = '20px';
-
-                    post.embeds.forEach(embed => {
-                        const wrapper = document.createElement('div');
-                        wrapper.style.marginBottom = '30px';
-
-                        if (embed.platform === 'external') {
-                            wrapper.innerHTML = `
-                                <a href="${embed.url}" target="_blank" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 8px;">
-                                    <span style="font-size: 24px;">🔗</span>
-                                    <div>
-                                        <div style="font-weight: bold;">External Link</div>
-                                        <div style="font-size: 13px; color: #666; word-break: break-all;">${embed.url}</div>
-                                    </div>
-                                </a>
-                            `;
-                        } else {
-                            // Video Embeds (YouTube, TikTok, FB)
-                            // Responsive Iframe
-                            wrapper.innerHTML = `
-                                <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
-                                    <iframe src="${embed.embedUrl}" 
-                                        style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
-                                        frameborder="0" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                                        allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups">
-                                    </iframe>
-                                </div>
-                            `;
-                        }
-                        embedsContainer.appendChild(wrapper);
-                    });
-
-                    document.getElementById('article').appendChild(embedsContainer);
-                }
-
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('article').style.display = 'block';
+                renderPost(post);
 
             } catch (error) {
                 console.error(error);
@@ -279,6 +215,130 @@
                 <a href="index.html">Return to Home</a>`;
             }
         });
+
+        // 🟢 RENDER FUNCTION (Extracted for Reuse)
+        function renderPost(post) {
+            const pageTitle = (post.seo && post.seo.title) ? post.seo.title : post.title;
+            document.title = pageTitle + ' - CMS CK';
+
+            // SEO Metadata
+            if (post.seo) {
+                if (post.seo.description) {
+                    document.querySelector('meta[name="description"]').setAttribute("content", post.seo.description);
+                    document.querySelector('meta[property="og:description"]').setAttribute("content", post.seo.description);
+                }
+                if (post.seo.keywords) document.querySelector('meta[name="keywords"]').setAttribute("content", post.seo.keywords);
+            }
+
+            document.querySelector('meta[property="og:title"]').setAttribute("content", pageTitle);
+
+            document.getElementById('postTitle').innerText = post.title;
+            document.getElementById('postDate').innerText = new Date(post.publishedAt).toLocaleDateString();
+            document.getElementById('postAuthor').innerText = post.author || 'Admin';
+
+            // 🟢 Restrict View Count to Logged-in Users
+            const viewCountEl = document.getElementById('viewCount');
+            if (localStorage.getItem('access_token')) {
+                viewCountEl.innerText = post.viewCount || 0;
+                viewCountEl.parentNode.style.display = 'inline';
+            } else {
+                viewCountEl.parentNode.style.display = 'none';
+            }
+            // Featured image removed from detail view as per request
+
+            document.getElementById('postContent').innerHTML = post.content;
+
+            // 🟢 RENDER MAIN MEDIA (SourceUrl)
+            if (post.sourceUrl && post.sourceType !== 'original') {
+                let mainEmbedUrl = '';
+                if (post.sourceType === 'youtube' && (post.sourceUrl.includes('youtube') || post.sourceUrl.includes('youtu.be'))) {
+                    let vId = post.sourceUrl.split('v=')[1] || post.sourceUrl.split('/').pop();
+                    vId = vId.split('&')[0];
+                    mainEmbedUrl = `https://www.youtube.com/embed/${vId}`;
+                } else if (post.sourceType === 'facebook') {
+                    mainEmbedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(post.sourceUrl)}&show_text=false&t=0`;
+                } else if (post.sourceType === 'tiktok') {
+                    let vId = post.sourceUrl.split('/video/')[1];
+                    if (vId) vId = vId.split('?')[0];
+                    mainEmbedUrl = `https://www.tiktok.com/embed/v2/${vId}`;
+                } else if (post.sourceType === 'googledrive' && post.sourceUrl.includes('drive.google.com')) {
+                    const match = post.sourceUrl.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+                    if (match && match[1]) {
+                        mainEmbedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+                    }
+                }
+
+                if (mainEmbedUrl) {
+                    const mainMediaDiv = document.createElement('div');
+                    mainMediaDiv.style.marginBottom = '30px';
+
+                    // 🟢 Calculate Aspect Ratio & Max Width
+                    let aspectRatio = '16 / 9';
+                    let maxWidth = '100%';
+
+                    if (post.mediaRatio === '4:3') aspectRatio = '4 / 3';
+                    if (post.mediaRatio === '1:1') { aspectRatio = '1 / 1'; maxWidth = '600px'; }
+                    if (post.mediaRatio === '9:16') { aspectRatio = '9 / 16'; maxWidth = '420px'; } // Vertical Video Focus
+                    if (post.mediaRatio === '21:9') aspectRatio = '21 / 9';
+
+                    mainMediaDiv.innerHTML = `
+                        <div class="video-wrapper" style="aspect-ratio: ${aspectRatio}; max-width: ${maxWidth};">
+                            <iframe src="${mainEmbedUrl}" allowfullscreen></iframe>
+                        </div>
+                        <p style="text-align:center; font-style:italic; color:#666; font-size:12px; margin-top:5px;">Source: ${post.sourceType}</p>
+                    `;
+                    const article = document.getElementById('article');
+                    const content = document.getElementById('postContent');
+                    article.insertBefore(mainMediaDiv, content);
+                }
+            }
+
+            // 🟢 RENDER EMBEDS
+            if (post.embeds && post.embeds.length > 0) {
+                const embedsContainer = document.createElement('div');
+                embedsContainer.style.marginTop = '40px';
+                embedsContainer.style.borderTop = '1px solid #eee';
+                embedsContainer.style.paddingTop = '20px';
+
+                post.embeds.forEach(embed => {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.marginBottom = '30px';
+
+                    if (embed.platform === 'external') {
+                        wrapper.innerHTML = `
+                            <a href="${embed.url}" target="_blank" style="display: flex; align-items: center; gap: 10px; padding: 15px; background: #f9f9f9; border: 1px solid #ddd; text-decoration: none; color: #333; border-radius: 8px;">
+                                <span style="font-size: 24px;">🔗</span>
+                                <div>
+                                    <div style="font-weight: bold;">External Link</div>
+                                    <div style="font-size: 13px; color: #666; word-break: break-all;">${embed.url}</div>
+                                </div>
+                            </a>
+                        `;
+                    } else {
+                        // Video Embeds (YouTube, TikTok, FB)
+                        // Responsive Iframe
+                        wrapper.innerHTML = `
+                            <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; background: #000; border-radius: 8px;">
+                                <iframe src="${embed.embedUrl}" 
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen sandbox="allow-scripts allow-same-origin allow-presentation allow-popups">
+                                </iframe>
+                            </div>
+                        `;
+                    }
+                    embedsContainer.appendChild(wrapper);
+                });
+
+                document.getElementById('article').appendChild(embedsContainer);
+            }
+
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('article').style.display = 'block';
+        }
+
+
     </script>
 </body>
 

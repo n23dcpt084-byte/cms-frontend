@@ -20,8 +20,28 @@ function updateClock() {
 
 // 🟢 FILTER LOGIC
 let allPosts = []; // Store fetch result
-let currentEmbeds = []; // 🟢 Store active embeds for current form
+let currentEmbeds = []; // 🟢 Store active embeds
 let currentFilter = 'all';
+let originalSnapshot = ''; // 🟢 For Dirty Check
+
+// 🟢 Helper: Get Current Form Snapshot
+function getFormSnapshot() {
+    return JSON.stringify({
+        title: document.getElementById('title').value,
+        slug: document.getElementById('slug').value,
+        sourceType: document.getElementById('sourceType').value,
+        sourceUrl: document.getElementById('sourceUrl').value,
+        mediaRatio: document.getElementById('mediaRatio').value || '16:9',
+        content: quill.root.innerHTML,
+        status: document.getElementById('status').value,
+        publishedAt: document.getElementById('publishedAt').value,
+        seoTitle: document.getElementById('seoTitle').value,
+        seoDescription: document.getElementById('seoDescription').value,
+        seoKeywords: document.getElementById('seoKeywords').value,
+        embeds: currentEmbeds
+        // Note: imageUrl/File upload is hard to snapshot without complexity, ignoring for now or just checking if file selected
+    });
+}
 
 window.filterPosts = function (status) { // Status can be 'all', 'draft', 'scheduled', 'published', 'archived'
     currentFilter = status;
@@ -56,13 +76,7 @@ function renderPosts() {
         filtered.forEach(post => {
             const row = document.createElement('div');
             row.className = 'post-row';
-            row.onclick = (e) => {
-                // Open edit if not clicking delete
-                if (!e.target.closest('.btn-icon')) {
-                    startEdit(post);
-                }
-            };
-            row.style.cursor = 'pointer';
+            // Removed global row.onclick
 
             // Image
             let imgHtml = `<div class="post-row-img">No Img</div>`;
@@ -89,8 +103,19 @@ function renderPosts() {
                     </div>
                     <div class="post-row-snippet">${text}</div>
                 </div>
-                <div class="post-row-actions">
-                     <button class="btn-icon" title="Delete" onclick="deletePost('${post._id}'); event.stopPropagation();">
+                <div class="post-row-actions" style="gap: 5px;">
+                     <!-- Edit Button -->
+                     <button class="btn-icon" title="Edit" onclick="triggerEdit('${post._id}'); event.stopPropagation();" style="color: #3498db;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                     </button>
+                     
+                     <!-- Archive Button -->
+                     <button class="btn-icon" title="Archive" onclick="archivePost('${post._id}'); event.stopPropagation();" style="color: #f1c40f;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-archive"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+                     </button>
+
+                     <!-- Delete Button -->
+                     <button class="btn-icon" title="Delete" onclick="deletePost('${post._id}'); event.stopPropagation();" style="color: #e74c3c;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
                      </button>
                 </div>
@@ -137,6 +162,7 @@ function initQuill() {
                 container: [
                     [{ 'header': [1, 2, 3, false] }],
                     ['bold', 'italic', 'underline'],
+                    [{ 'align': [] }], // 🟢 Text Alignment
                     [{ 'list': 'ordered' }, { 'list': 'bullet' }],
                     ['link', 'image', 'video']
                 ],
@@ -220,11 +246,15 @@ function selectVideo() {
     }
 
     if (embedUrl) {
-        const range = quill.getSelection(true); // true = focus
-        // Insert clean Iframe wrapped in resizable container
-        const iframeHTML = `<iframe src="${embedUrl}" width="100%" height="100%" frameborder="0" allowfullscreen></iframe>`;
-        const wrappedHTML = getResizableWrapper(iframeHTML, 'video');
-        quill.clipboard.dangerouslyPasteHTML(range.index, wrappedHTML);
+        const range = quill.getSelection(true);
+        // 🟢 Use Standard Video Wrapper (Responsive 16:9)
+        // Note: Quill might strip complex divs. We try to insert as HTML.
+        const videoHTML = `
+            <div class="video-wrapper" style="aspect-ratio: 16/9; max-width: 100%;">
+                <iframe src="${embedUrl}" allowfullscreen></iframe>
+            </div>
+            <p><br></p>`; // Add breakline
+        quill.clipboard.dangerouslyPasteHTML(range.index, videoHTML);
     } else {
         alert("Invalid or Unsupported Video URL");
     }
@@ -261,6 +291,16 @@ let isEditing = false;
 let currentPostId = null;
 
 // 🟢 FETCH & DISPLAY POSTS
+// Helper to trigger edit from ID
+window.triggerEdit = function (id) {
+    const post = allPosts.find(p => p._id === id);
+    if (post) {
+        startEdit(post);
+    } else {
+        console.error("Post not found:", id);
+    }
+};
+
 async function loadPosts() {
     postsContainer.innerHTML = '<p>Loading posts...</p>';
     try {
@@ -296,9 +336,12 @@ window.openCreateModal = function () {
         return;
     }
     resetForm();
-    modalTitle.textContent = "Create New Post";
+    document.getElementById('modalTitle').textContent = "Create New Post";
     modal.style.display = "block";
-    quill.setSelection(0); // Focus
+    quill.setSelection(0);
+
+    // 🟢 Snapshot Initial State
+    originalSnapshot = getFormSnapshot();
 };
 
 // Standard Close (Reset) - Used internally or by Discard
@@ -314,10 +357,12 @@ window.minimizeModal = function () {
 };
 
 // Request Close (Triggered by X)
+// Request Close (Triggered by X)
 window.requestCloseModal = function () {
-    const hasContent = quill.getText().trim().length > 0 || document.getElementById('title').value.trim().length > 0;
+    const currentSnapshot = getFormSnapshot();
 
-    if (hasContent) {
+    // 🟢 SMART CLOSE: Only confirm if changed
+    if (currentSnapshot !== originalSnapshot) {
         confirmModal.style.display = "block";
     } else {
         closeModal();
@@ -423,10 +468,161 @@ window.startEdit = function (post) {
         document.getElementById('publishedAt').value = localIsoString;
     }
 
+    // 🟢 Ensure UI is consistent
     toggleScheduleField();
+    updateVideoPreview();
+
+    // 🟢 Snapshot Initial State (Correctly placed at end)
+    originalSnapshot = getFormSnapshot();
 };
 
-// 🟢 HANDLE FORM SUBMIT (CREATE OR UPDATE)
+// 🟢 LIVE PREVIEW LOGIC
+const sourceUrlInput = document.getElementById('sourceUrl');
+const sourceTypeSelect = document.getElementById('sourceType');
+const mediaRatioSelect = document.getElementById('mediaRatio');
+
+function updateVideoPreview() {
+    const url = sourceUrlInput.value.trim();
+    const type = sourceTypeSelect.value;
+    const ratio = mediaRatioSelect.value;
+    const container = document.getElementById('videoPreviewContainer');
+    const wrapper = document.getElementById('previewWrapper');
+
+    if (!url || type === 'original') {
+        container.style.display = 'none';
+        wrapper.innerHTML = '';
+        return;
+    }
+
+    let embedUrl = '';
+    // Reuse logic roughly (or cleaner extraction)
+    if (type === 'youtube' && (url.includes('youtube') || url.includes('youtu.be'))) {
+        let vId = url.split('v=')[1] || url.split('/').pop();
+        if (vId) vId = vId.split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${vId}`;
+    } else if (type === 'facebook') {
+        embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&t=0`;
+    } else if (type === 'tiktok') {
+        let vId = url.split('/video/')[1];
+        if (vId) vId = vId.split('?')[0];
+        embedUrl = `https://www.tiktok.com/embed/v2/${vId}`;
+    } else if (type === 'googledrive' && url.includes('drive.google.com')) {
+        const match = url.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+        }
+    }
+
+    if (embedUrl) {
+        container.style.display = 'block';
+
+        // Calculate Ratio
+        let paddingBottom = '56.25%'; // 16:9
+        if (ratio === '4:3') paddingBottom = '75%';
+        if (ratio === '1:1') paddingBottom = '100%';
+        if (ratio === '9:16') paddingBottom = '177.77%';
+        if (ratio === '21:9') paddingBottom = '42.85%';
+
+        wrapper.style.paddingBottom = paddingBottom;
+        // Only update innerHTML if URL changed (to prevent flickering on ratio change) 
+        // simplifies complexity: just update always on change
+        wrapper.innerHTML = `<iframe src="${embedUrl}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>`;
+    } else {
+        container.style.display = 'none';
+    }
+}
+
+sourceUrlInput.addEventListener('input', updateVideoPreview);
+sourceTypeSelect.addEventListener('change', updateVideoPreview);
+// mediaRatioSelect listener removed as we use buttons now, but we update preview when buttons change select
+
+// 🟢 RATIO BUTTON LOGIC
+document.querySelectorAll('.btn-ratio').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // UI Request: Visual Selection
+        const ratio = e.target.getAttribute('data-ratio');
+
+        // 1. Update Hidden Select
+        mediaRatioSelect.value = ratio;
+
+        // 2. Visual Feedback
+        document.querySelectorAll('.btn-ratio').forEach(b => {
+            b.style.background = '#fff';
+            b.classList.remove('active');
+        });
+        e.target.style.background = '#ddd'; // Active highlight
+        e.target.classList.add('active');
+
+        // 3. Update Preview
+        updateVideoPreview();
+    });
+});
+
+// Update Preview Function (Enhanced)
+function updateVideoPreview() {
+    const url = sourceUrlInput.value.trim();
+    const type = sourceTypeSelect.value;
+    const ratio = mediaRatioSelect.value;
+    const container = document.getElementById('videoPreviewContainer');
+    const wrapper = document.getElementById('previewWrapper');
+
+    // Sync Buttons Visual State (in case loaded from edit)
+    document.querySelectorAll('.btn-ratio').forEach(b => {
+        if (b.getAttribute('data-ratio') === ratio) {
+            b.style.background = '#ddd';
+        } else {
+            b.style.background = '#fff';
+        }
+    });
+
+    if (!url || type === 'original') {
+        container.style.display = 'none';
+        wrapper.innerHTML = '';
+        return;
+    }
+    let embedUrl = '';
+    if (type === 'youtube' && (url.includes('youtube') || url.includes('youtu.be'))) {
+        let vId = url.split('v=')[1] || url.split('/').pop();
+        if (vId) vId = vId.split('&')[0];
+        embedUrl = `https://www.youtube.com/embed/${vId}`;
+    } else if (type === 'facebook') {
+        embedUrl = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false&t=0`;
+    } else if (type === 'tiktok') {
+        let vId = url.split('/video/')[1];
+        if (vId) vId = vId.split('?')[0];
+        embedUrl = `https://www.tiktok.com/embed/v2/${vId}`;
+    } else if (type === 'googledrive' && url.includes('drive.google.com')) {
+        const match = url.match(/file\/d\/([a-zA-Z0-9_-]+)/);
+        if (match && match[1]) {
+            embedUrl = `https://drive.google.com/file/d/${match[1]}/preview`;
+        }
+    }
+
+    if (embedUrl) {
+        container.style.display = 'block';
+
+        // 🟢 Calculate Aspect Ratio & Max Width
+        let aspectRatio = '16 / 9';
+        let maxWidth = '100%';
+
+        if (ratio === '4:3') aspectRatio = '4 / 3';
+        if (ratio === '1:1') { aspectRatio = '1 / 1'; maxWidth = '600px'; }
+        if (ratio === '9:16') { aspectRatio = '9 / 16'; maxWidth = '420px'; } // Vertical Focus
+        if (ratio === '21:9') aspectRatio = '21 / 9';
+
+        // Use the new class logic
+        wrapper.className = 'video-wrapper'; // Apply standard class
+        wrapper.style.aspectRatio = aspectRatio;
+        wrapper.style.maxWidth = maxWidth;
+        wrapper.style.paddingBottom = '0'; // Reset old padding style
+        wrapper.style.height = 'auto'; // Let aspect-ratio handle it
+
+        wrapper.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+    } else {
+        container.style.display = 'none';
+    }
+} // 🟢 Closing updateVideoPreview
+
 if (createPostForm) {
     createPostForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -488,8 +684,9 @@ if (createPostForm) {
             const slug = document.getElementById('slug').value || '';
             const sourceType = document.getElementById('sourceType').value;
             const sourceUrl = document.getElementById('sourceUrl').value;
+            const mediaRatio = document.getElementById('mediaRatio').value;
 
-            const postData = { title, content, status, publishedAt, slug, sourceType, sourceUrl };
+            const postData = { title, content, status, publishedAt, slug, sourceType, sourceUrl, mediaRatio };
 
             // 🟢 COLLECT SEO DATA
             const seo = {
@@ -525,38 +722,88 @@ if (createPostForm) {
         } catch (error) {
             alert('Failed to save post: ' + error.message);
         }
-    });
-}
+    }); // Close submit listener
+} // Close createPostForm check
+
+// 🟢 PREVIEW POST
+window.previewPost = function () {
+    const postData = {
+        title: document.getElementById('title').value || '(No Title)',
+        content: quill.root.innerHTML,
+        slug: document.getElementById('slug').value,
+        sourceType: document.getElementById('sourceType').value,
+        sourceUrl: document.getElementById('sourceUrl').value,
+        mediaRatio: document.getElementById('mediaRatio').value,
+        publishedAt: new Date().toISOString(),
+        author: { username: 'Admin (Preview)' }, // Mock author
+        embeds: currentEmbeds
+        // Image preview logic omitted for simplicity unless base64
+    };
+
+    localStorage.setItem('cms_preview_data', JSON.stringify(postData));
+    window.open('post.html?preview=true', '_blank');
+};
 
 function resetForm() {
-    isEditing = false;
-    currentPostId = null;
-    createPostForm.reset();
-    document.getElementById('slug').value = '';
-    document.getElementById('sourceType').value = 'original';
-    document.getElementById('sourceUrl').value = '';
-    document.getElementById('mediaRatio').value = '16:9';
-    quill.root.innerHTML = '';
+    try {
+        isEditing = false;
+        currentPostId = null;
+        if (createPostForm) createPostForm.reset();
 
-    const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
-    if (submitBtn) submitBtn.textContent = 'Publish Post';
+        document.getElementById('slug').value = '';
 
-    const formTitle = document.getElementById('modalTitle');
-    if (formTitle) formTitle.textContent = 'Create New Post';
+        const typeSelect = document.getElementById('sourceType');
+        if (typeSelect) typeSelect.value = 'original';
 
-    // Reset SEO
-    document.getElementById('seoTitle').value = '';
-    document.getElementById('seoDescription').value = '';
-    document.getElementById('seoKeywords').value = '';
+        const urlInput = document.getElementById('sourceUrl');
+        if (urlInput) urlInput.value = '';
 
-    // Reset Embeds
-    currentEmbeds = [];
-    renderEmbeds();
-    document.getElementById('mediaUrl').value = '';
+        const ratioSelect = document.getElementById('mediaRatio');
+        if (ratioSelect) ratioSelect.value = '16:9'; // Default
 
-    document.getElementById('scheduleError').style.display = 'none';
+        // Reset Ratio Buttons Visual State
+        document.querySelectorAll('.btn-ratio').forEach(btn => {
+            btn.classList.remove('active');
+            btn.style.background = '#fff';
+            if (btn.getAttribute('data-ratio') === '16:9') {
+                btn.classList.add('active');
+                btn.style.background = '#ddd';
+            }
+        });
 
-    updateSubmitButton();
+        quill.root.innerHTML = '';
+
+        const submitBtn = document.querySelector('#createPostForm button[type="submit"]');
+        if (submitBtn) submitBtn.textContent = 'Publish Post';
+
+        const formTitle = document.getElementById('modalTitle');
+        if (formTitle) formTitle.textContent = 'Create New Post';
+
+        // Reset SEO
+        if (document.getElementById('seoTitle')) document.getElementById('seoTitle').value = '';
+        if (document.getElementById('seoDescription')) document.getElementById('seoDescription').value = '';
+        if (document.getElementById('seoKeywords')) document.getElementById('seoKeywords').value = '';
+
+        // Reset Embeds
+        currentEmbeds = [];
+        renderEmbeds();
+
+        const mediaUrlInput = document.getElementById('mediaUrl');
+        if (mediaUrlInput) mediaUrlInput.value = '';
+
+        const scheduleError = document.getElementById('scheduleError');
+        if (scheduleError) scheduleError.style.display = 'none';
+
+        // 🟢 Reset Video Preview
+        updateVideoPreview();
+
+        // 🟢 Reset Schedule Field Visibility
+        toggleScheduleField();
+
+        updateSubmitButton();
+    } catch (e) {
+        console.warn("Error resetting form: ", e);
+    }
 }
 
 // 🟢 DELETE POST
@@ -691,3 +938,4 @@ function escapeHtml(text) {
         .replace(/"/g, "&quot;")
         .replace(/'/g, "&#039;");
 }
+

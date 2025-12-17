@@ -44,11 +44,10 @@ if (loginForm) {
             if (data.access_token) {
                 localStorage.setItem('access_token', data.access_token);
                 alert('Login Successful!');
-                window.location.href = 'dashboard.html';
+                window.location.href = 'posts.html';
             } else {
                 throw new Error('No token received');
             }
-
         } catch (error) {
             alert(error.message);
         }
@@ -95,7 +94,7 @@ function logout() {
     if (confirm('Are you sure you want to logout?')) {
         localStorage.removeItem('access_token');
         // Use replace to clear the current history entry
-        window.location.replace('login.html');
+        window.location.replace('index.html');
     }
 }
 
@@ -106,7 +105,7 @@ function checkAlreadyLoggedIn() {
         // Validate before redirecting
         const payload = parseJwt(token);
         if (payload && payload.exp && (Date.now() < payload.exp * 1000)) {
-            window.location.replace('dashboard.html');
+            window.location.replace('posts.html');
         } else {
             // Invalid/Expired token on login page -> Clear it
             localStorage.removeItem('access_token');

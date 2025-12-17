@@ -32,9 +32,36 @@
     </script>
 
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js" defer></script>
+    <style>
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 {
+            color: var(--header-text);
+        }
+    </style>
 </head>
 
 <body>
+
+    <!-- 🟢 Theme Toggle -->
+    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()"
+        style="position: absolute; top: 20px; right: 20px; z-index: 100;" title="Toggle Theme">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="feather feather-moon">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+    </button>
 
     <div class="container" style="max-width: 400px; margin-top: 100px;">
         <h1>CMS Admin Login</h1>

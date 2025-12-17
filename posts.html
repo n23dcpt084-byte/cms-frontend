@@ -55,42 +55,73 @@
 
 <body>
 
-    <button id="logoutBtn" onclick="logout()">Logout</button>
-    <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()"
-        style="position: absolute; top: 20px; right: 100px; z-index: 100;" title="Toggle Theme">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="feather feather-moon">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-        </svg>
-    </button>
+    <div class="app-container">
+        <!-- 🟢 Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">CMS Admin</div>
+            <nav class="sidebar-nav">
+                <div class="nav-item active">
+                    <i>📝</i> Manage Posts
+                </div>
+                <a href="analytics.html" class="nav-item" style="text-decoration: none;">
+                    <i>📊</i> Analytics
+                </a>
+                <div class="nav-item" onclick="showToast('Livestream feature is under development!')">
+                    <i>🎥</i> Livestream
+                </div>
+            </nav>
+        </aside>
 
-    <div class="container">
-        <div class="action-bar">
-            <h1>Manage Posts</h1>
-            <div>
-                <button onclick="openCreateModal()" style="width: auto; margin-right: 10px;">+ New Post</button>
-                <a href="dashboard.html"><button class="secondary" style="width: auto;">&larr; Back to
-                        Dashboard</button></a>
+        <!-- 🟢 Main Content -->
+        <div class="content-wrapper">
+            <div class="dashboard-header">
+                <h2>Manage Posts</h2>
+                <!-- 🟢 Header Controls (Aligned) -->
+                <div style="display: flex; gap: 15px; align-items: center; height: 36px;">
+                    <!-- Guest Mode -->
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; margin: 0;">
+                        <button class="secondary"
+                            style="height: 36px; padding: 0 20px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; width: auto; white-space: nowrap; margin: 0; line-height: 1;">Switch
+                            to Guest Mode</button>
+                    </a>
+
+                    <!-- Theme Toggle -->
+                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme"
+                        style="width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: none; border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer; padding: 0; margin: 0; line-height: 1;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                        </svg>
+                    </button>
+
+                    <!-- Logout -->
+                    <button id="logoutBtn" onclick="logout()"
+                        style="height: 36px; padding: 0 20px; font-size: 14px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; width: auto; white-space: nowrap; margin: 0; line-height: 1;">Logout</button>
+                </div>
+            </div>
+
+            <!-- Action Bar (New Post) -->
+            <div class="action-bar" style="margin-bottom: 20px; justify-content: flex-end;">
+                <button onclick="openCreateModal()" style="width: auto;">+ New Post</button>
+            </div>
+
+            <!-- Status Filter Tabs -->
+            <div class="tabs" style="margin-bottom: 20px;">
+                <button class="tab active" onclick="filterPosts('all')">All</button>
+                <button class="tab" onclick="filterPosts('draft')">Drafts</button>
+                <button class="tab" onclick="filterPosts('scheduled')">Scheduled</button>
+                <button class="tab" onclick="filterPosts('published')">Published</button>
+                <button class="tab" onclick="filterPosts('archived')">Archived</button>
+            </div>
+
+            <!-- List of Posts -->
+            <div id="postsContainer">
+                <p>Loading...</p>
             </div>
         </div>
-
-        <!-- Create Post Form -->
-        <!-- Status Filter Tabs -->
-        <div class="tabs" style="margin-bottom: 20px;">
-            <button class="tab active" onclick="filterPosts('all')">All</button>
-            <button class="tab" onclick="filterPosts('draft')">Drafts</button>
-            <button class="tab" onclick="filterPosts('scheduled')">Scheduled</button>
-            <button class="tab" onclick="filterPosts('published')">Published</button>
-            <button class="tab" onclick="filterPosts('archived')">Archived</button>
-        </div>
-
-        <!-- List of Posts -->
-        <div id="postsContainer">
-            <!-- Posts will be injected here by JS -->
-            <p>Loading...</p>
-        </div>
     </div>
+
+    <div id="toast" class="toast">Feature Coming Soon!</div>
 
     <!-- 🟢 MODAL EDITOR -->
     <div id="postModal" class="modal" style="display: none;">
@@ -130,8 +161,8 @@
                         <label>Source URL (if not Original)</label>
                         <input type="text" id="sourceUrl" placeholder="https://youtube.com/...">
                     </div>
-                    <div style="flex: 0.8;">
-                        <label>Ratio</label>
+                    <div style="flex: 0.8; display:none;">
+                        <label>Ratio (Hidden)</label>
                         <select id="mediaRatio">
                             <option value="16:9">16:9 (Default)</option>
                             <option value="4:3">4:3 (TV)</option>
@@ -139,6 +170,37 @@
                             <option value="9:16">9:16 (TikTok)</option>
                             <option value="21:9">21:9 (Cinema)</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- 🟢 LIVE PREVIEW & VISUAL CONTROLS -->
+                <div id="videoPreviewContainer" style="margin-bottom: 20px; display: none;">
+                    <label style="display:block; margin-bottom: 5px;">Video Preview & Ratio:</label>
+
+                    <!-- Ratio Toolbar -->
+                    <div class="ratio-toolbar" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <button type="button" class="btn-ratio active" data-ratio="16:9"
+                            style="flex:1; padding: 5px; cursor: pointer; border: 1px solid #ddd; background: #eee; border-radius: 4px;">16:9</button>
+                        <button type="button" class="btn-ratio" data-ratio="4:3"
+                            style="flex:1; padding: 5px; cursor: pointer; border: 1px solid #ddd; background: #fff; border-radius: 4px;">4:3</button>
+                        <button type="button" class="btn-ratio" data-ratio="1:1"
+                            style="flex:1; padding: 5px; cursor: pointer; border: 1px solid #ddd; background: #fff; border-radius: 4px;">1:1</button>
+                        <button type="button" class="btn-ratio" data-ratio="9:16"
+                            style="flex:1; padding: 5px; cursor: pointer; border: 1px solid #ddd; background: #fff; border-radius: 4px;">9:16</button>
+                    </div>
+
+                    <div id="previewWrapper"
+                        style="background: #000; border-radius: 8px; overflow: hidden; position: relative; transition: padding-bottom 0.3s ease;">
+                        <!-- Iframe -->
+                    </div>
+                </div>
+
+                <!-- 🟢 LIVE PREVIEW CONTAINER -->
+                <div id="videoPreviewContainer" style="margin-bottom: 20px; display: none;">
+                    <label style="display:block; margin-bottom: 5px;">Live Preview:</label>
+                    <div id="previewWrapper"
+                        style="background: #000; border-radius: 8px; overflow: hidden; position: relative;">
+                        <!-- Iframe will be injected here -->
                     </div>
                 </div>
 
@@ -156,7 +218,7 @@
                     <label>Status</label>
                     <select id="status" onchange="toggleScheduleField()">
                         <option value="draft">Draft</option>
-                        <option value="published">Publish Now</option>
+                        <option value="published">Published</option>
                         <option value="scheduled">Schedule</option>
                     </select>
                 </div>
@@ -210,6 +272,9 @@
                 <div class="modal-footer">
                     <button type="button" class="secondary btn-equal" onclick="requestCloseModal()"
                         style="margin-right: 10px;">Cancel</button>
+                    <!-- 🟢 Preview Button -->
+                    <button type="button" class="secondary btn-equal" onclick="previewPost()"
+                        style="margin-right: 10px; background: #9b59b6; color: white;">👁 Preview</button>
                     <button type="submit" class="btn-equal">Publish Post</button>
                 </div>
             </form>
@@ -223,10 +288,15 @@
         <div class="modal-content" style="max-width: 400px; text-align: center;">
             <h3>Unsaved Changes</h3>
             <p>Do you want to save this post as a draft or discard changes?</p>
-            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
-                <button onclick="saveDraftAndClose()" class="btn-equal" style="background: #f39c12;">Save Draft</button>
-                <button onclick="discardAndClose()" class="danger btn-equal">Discard</button>
-                <button onclick="closeConfirmModal()" class="secondary btn-equal">Keep Editing</button>
+            <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px; align-items: center;">
+                <button onclick="saveDraftAndClose()" class="btn-equal"
+                    style="flex: 1; background: #f39c12; white-space: nowrap; height: 40px; font-size: 14px; padding: 0; margin: 0;">Save
+                    Draft</button>
+                <button onclick="discardAndClose()" class="danger btn-equal"
+                    style="flex: 1; white-space: nowrap; height: 40px; font-size: 14px; padding: 0; margin: 0;">Discard</button>
+                <button onclick="closeConfirmModal()" class="secondary btn-equal"
+                    style="flex: 1; white-space: nowrap; height: 40px; font-size: 14px; padding: 0; margin: 0;">Keep
+                    Editing</button>
             </div>
         </div>
     </div>
@@ -241,6 +311,15 @@
     <script src="https://unpkg.com/quill-image-resize-module@3.0.0/image-resize.min.js"></script>
     <script src="js/embed-parser.js"></script>
     <script src="js/posts.js" defer></script>
+    <script>
+        // Toast Function
+        function showToast(message) {
+            const toast = document.getElementById("toast");
+            toast.textContent = message;
+            toast.className = "toast show";
+            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+    </script>
 </body>
 
 </html>
