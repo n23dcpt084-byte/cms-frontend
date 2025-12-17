@@ -50,6 +50,56 @@ function renderPosts() {
         return;
     }
 
+    // 🟢 List View for 'All' Tab
+    if (currentFilter === 'all') {
+        filtered.forEach(post => {
+            const row = document.createElement('div');
+            row.className = 'post-row';
+            row.onclick = (e) => {
+                // Open edit if not clicking delete
+                if (!e.target.closest('.btn-icon')) {
+                    startEdit(post);
+                }
+            };
+            row.style.cursor = 'pointer';
+
+            // Image
+            let imgHtml = `<div class="post-row-img">No Img</div>`;
+            if (post.imageUrl) {
+                imgHtml = `<img src="${post.imageUrl}" class="post-row-img" alt="Post">`;
+            }
+
+            // Snippet (Strip HTML)
+            const div = document.createElement('div');
+            div.innerHTML = post.content;
+            let text = div.textContent || div.innerText || '';
+            if (text.length > 80) text = text.substring(0, 80) + '...';
+
+            // Status Badge
+            const status = post.status || 'draft';
+            const badgeClass = `badge-${status}`;
+
+            row.innerHTML = `
+                ${imgHtml}
+                <div class="post-row-content">
+                    <div class="post-row-header">
+                        <span class="post-row-title">${escapeHtml(post.title)}</span>
+                        <span class="badge ${badgeClass}" style="margin-bottom:0; font-size: 11px;">${status}</span>
+                    </div>
+                    <div class="post-row-snippet">${text}</div>
+                </div>
+                <div class="post-row-actions">
+                     <button class="btn-icon" title="Delete" onclick="deletePost('${post._id}'); event.stopPropagation();">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                     </button>
+                </div>
+            `;
+            postsContainer.appendChild(row);
+        });
+        return;
+    }
+
+    // 🟢 Card View for Other Tabs
     filtered.forEach(post => {
         const card = document.createElement('div');
         card.className = 'post-card';
