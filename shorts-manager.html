@@ -9,48 +9,8 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
     <link rel="stylesheet" href="css/style.css">
-    <style>
-        /* 🟢 Modal specific fixes */
-        #shortModal .modal-content {
-            padding-bottom: 30px !important;
-            /* Spacing at bottom */
-        }
-
-        #shortModal .form-group {
-            margin-bottom: 20px;
-            /* More breathing room */
-        }
-
-        #shortModal label {
-            margin-bottom: 8px;
-            /* Space between label and input */
-            display: block;
-        }
-
-        #shortModal input[type="text"],
-        #shortModal input[type="file"],
-        #shortModal input[type="datetime-local"],
-        #shortModal select,
-        #shortModal textarea {
-            width: 100%;
-            box-sizing: border-box;
-            /* Prevent overflow */
-            border-radius: 6px;
-            /* Rounded corners */
-            padding: 12px;
-            /* Comfortable padding */
-        }
-
-        #shortModal .modal-footer {
-            margin-top: 30px !important;
-            /* Space before buttons */
-        }
-
-        #shortModal button {
-            border-radius: 6px;
-            /* Rounded buttons */
-        }
-    </style>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Inline styles removed to use global style.css -->
     <script src="js/auth.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/theme.js" defer></script>
@@ -133,9 +93,9 @@
     </div>
 
     <!-- 🟢 SHORT VIDEO MODAL -->
+    <!-- 🟢 SHORT VIDEO MODAL -->
     <div id="shortModal" class="modal" style="display: none;">
-        <div class="modal-content"
-            style="max-width: 600px; width: 95%; background-color: var(--card-bg); overflow: visible;">
+        <div class="modal-content" style="max-width: 550px; width: 90%;">
             <div class="modal-header">
                 <h2 id="modalTitle">Create New Short Video</h2>
                 <span class="close" onclick="closeModal()">&times;</span>
@@ -171,6 +131,7 @@
 
                 <div class="form-group">
                     <label>Thumbnail (Optional)</label>
+                    <!-- 🟢 Thumbnail Preview -->
                     <div id="imagePreviewContainer"
                         style="display: none; margin-bottom: 10px; align-items: center; gap: 10px; padding: 10px; background: rgba(0,0,0,0.05); border-radius: 4px;">
                         <img id="currentImagePreview" src="" alt="Thumbnail"
@@ -193,8 +154,7 @@
                     </select>
                 </div>
 
-                <div id="scheduleField" class="form-group"
-                    style="display: none; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
+                <div id="scheduleField" class="form-group" style="display: none;">
                     <label>Publish Date & Time</label>
                     <input type="datetime-local" id="publishedAt">
                     <p style="font-size: 13px; color: #666; margin-top: 5px; font-style: italic;">
@@ -202,14 +162,10 @@
                     </p>
                 </div>
 
-                <div class="modal-footer"
-                    style="display: flex; gap: 15px; justify-content: center; align-items: center; padding-top: 20px; border-top: 1px solid #eee; margin-top: 20px;">
-                    <button type="button" class="secondary"
-                        style="flex: 1; text-align: center; margin: 0; height: 45px; display: flex; align-items: center; justify-content: center;"
-                        onclick="closeModal()">Cancel</button>
-                    <button type="submit" id="saveBtn"
-                        style="flex: 1; text-align: center; margin: 0; height: 45px; display: flex; align-items: center; justify-content: center;">Save
-                        Short Video</button>
+                <div class="modal-footer">
+                    <button type="button" class="secondary" onclick="closeModal()"
+                        style="margin-right: 10px;">Cancel</button>
+                    <button type="submit" id="saveBtn">Save Short Video</button>
                 </div>
             </form>
         </div>

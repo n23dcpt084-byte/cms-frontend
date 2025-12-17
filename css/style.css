@@ -105,7 +105,31 @@ button:hover {
 
 button.secondary {
     background-color: #95a5a6;
-    margin-top: 10px;
+    margin-top: 5px;
+}
+
+/* 🟢 Icon Button Style */
+.btn-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    transition: background 0.2s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+}
+
+.btn-icon:hover {
+    background: rgba(128, 128, 128, 0.1);
+}
+
+.btn-icon svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2;
 }
 
 button.danger {
@@ -222,6 +246,11 @@ button.btn-equal {
     /* Increased max-width for large screens */
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    /* 🟢 Ensure height fits content */
+    height: auto !important;
+    max-height: none !important;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 🟢 MODAL HEADER & CONTROLS */
