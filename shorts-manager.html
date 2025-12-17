@@ -9,6 +9,48 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 
     <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* 🟢 Modal specific fixes */
+        #shortModal .modal-content {
+            padding-bottom: 30px !important;
+            /* Spacing at bottom */
+        }
+
+        #shortModal .form-group {
+            margin-bottom: 20px;
+            /* More breathing room */
+        }
+
+        #shortModal label {
+            margin-bottom: 8px;
+            /* Space between label and input */
+            display: block;
+        }
+
+        #shortModal input[type="text"],
+        #shortModal input[type="file"],
+        #shortModal input[type="datetime-local"],
+        #shortModal select,
+        #shortModal textarea {
+            width: 100%;
+            box-sizing: border-box;
+            /* Prevent overflow */
+            border-radius: 6px;
+            /* Rounded corners */
+            padding: 12px;
+            /* Comfortable padding */
+        }
+
+        #shortModal .modal-footer {
+            margin-top: 30px !important;
+            /* Space before buttons */
+        }
+
+        #shortModal button {
+            border-radius: 6px;
+            /* Rounded buttons */
+        }
+    </style>
     <script src="js/auth.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/theme.js" defer></script>
