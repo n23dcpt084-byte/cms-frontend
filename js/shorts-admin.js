@@ -268,7 +268,20 @@ window.filterShorts = function (status) {
     } else {
         renderShorts(allShorts.filter(s => s.status === status));
     }
+}
 };
+
+function setMinScheduleDate() {
+    const input = document.getElementById('publishedAt');
+    if (!input) return;
+
+    const now = new Date();
+    // Adjust to local ISO string (handling timezone offset manually for input type=datetime-local)
+    // Actually simpler: just use current time in local timezone
+    const tzOffset = now.getTimezoneOffset() * 60000; // in ms
+    const localISOTime = (new Date(Date.now() - tzOffset)).toISOString().slice(0, 16);
+    input.min = localISOTime;
+}
 // 🟢 THUMBNAIL LOGIC
 window.handleThumbnailFile = function () {
     const input = document.getElementById('thumbnailFile');
@@ -298,6 +311,7 @@ window.toggleScheduleField = function () {
     if (status === 'scheduled') {
         scheduleField.style.display = 'block';
         saveBtn.innerText = 'Schedule Short';
+        setMinScheduleDate(); // 🟢 Set Min Date
     } else if (status === 'published') {
         scheduleField.style.display = 'none';
         saveBtn.innerText = 'Publish Short';

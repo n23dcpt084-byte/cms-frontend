@@ -73,7 +73,8 @@
 
     <!-- 🟢 SHORT VIDEO MODAL -->
     <div id="shortModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 600px; width: 95%;">
+        <div class="modal-content"
+            style="max-width: 600px; width: 95%; background-color: var(--card-bg); overflow: visible;">
             <div class="modal-header">
                 <h2 id="modalTitle">Create New Short Video</h2>
                 <span class="close" onclick="closeModal()">&times;</span>
@@ -131,7 +132,8 @@
                     </select>
                 </div>
 
-                <div id="scheduleField" class="form-group" style="display: none;">
+                <div id="scheduleField" class="form-group"
+                    style="display: none; background: rgba(0,0,0,0.02); padding: 10px; border-radius: 4px; border: 1px solid var(--border-color);">
                     <label>Publish Date & Time</label>
                     <input type="datetime-local" id="publishedAt">
                     <p style="font-size: 13px; color: #666; margin-top: 5px; font-style: italic;">
@@ -140,7 +142,7 @@
                 </div>
 
                 <div class="modal-footer"
-                    style="display: flex; gap: 15px; justify-content: center; align-items: center; padding-top: 20px; border-top: 1px solid #eee;">
+                    style="display: flex; gap: 15px; justify-content: center; align-items: center; padding-top: 20px; border-top: 1px solid #eee; margin-top: 20px;">
                     <button type="button" class="secondary"
                         style="flex: 1; text-align: center; margin: 0; height: 45px; display: flex; align-items: center; justify-content: center;"
                         onclick="closeModal()">Cancel</button>
