@@ -77,9 +77,6 @@
                 <a href="analytics.html" class="nav-item" style="text-decoration: none;">
                     <i>📊</i> Analytics
                 </a>
-                <div class="nav-item" onclick="showToast('Livestream feature is under development!')">
-                    <i>🎥</i> Livestream
-                </div>
             </nav>
         </aside>
 
@@ -88,44 +85,14 @@
             <div class="dashboard-header">
                 <h2>Manage Short Videos</h2>
                 <div style="display: flex; gap: 15px; align-items: center; height: 36px;">
-                    <!-- 🟢 Date Display -->
-                    <span id="headerDateDisplay"
-                        style="font-size: 18px; font-weight: bold; color: var(--header-text); margin-right: 15px; font-family: 'Segoe UI', sans-serif;">Loading...</span>
-
-                    <!-- Guest Mode -->
-                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; margin: 0;">
-                        <button class="secondary"
-                            style="height: 36px; padding: 0 20px; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; width: auto; white-space: nowrap; margin: 0; line-height: 1;">Switch
-                            to Guest Mode</button>
-                    </a>
-
-                    <!-- Theme Toggle -->
-                    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme"
-                        style="width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: none; border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer; padding: 0; margin: 0; line-height: 1;">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                        </svg>
+                    <button class="theme-toggle" onclick="toggleTheme()"
+                        style="width: 36px; height: 36px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; background: none; border: 1px solid var(--border-color); color: var(--text-color); cursor: pointer;">
+                        🌙
                     </button>
-
-                    <!-- Logout -->
                     <button id="logoutBtn" onclick="logout()"
-                        style="height: 36px; padding: 0 20px; font-size: 14px; background-color: #e74c3c; color: white; border: none; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; width: auto; white-space: nowrap; margin: 0; line-height: 1;">Logout</button>
+                        style="height: 36px; padding: 0 20px; font-size: 14px; background-color: #e74c3c; color: white; border: none; border-radius: 4px;">Logout</button>
                 </div>
             </div>
-
-            <script>
-                // Update Date Display
-                function updateHeaderDate() {
-                    const el = document.getElementById('headerDateDisplay');
-                    if (el) {
-                        const now = new Date();
-                        el.textContent = now.toLocaleDateString('en-GB'); // dd/mm/yyyy
-                    }
-                }
-                updateHeaderDate();
-                setInterval(updateHeaderDate, 60000); // Update every minute
-            </script>
 
             <!-- Action Bar -->
             <div class="action-bar" style="margin-bottom: 20px; justify-content: flex-end;">
@@ -228,17 +195,6 @@
             </form>
         </div>
     </div>
-
-    <!-- 🟢 Toast Notification -->
-    <div id="toast" class="toast"></div>
-    <script>
-        function showToast(message) {
-            const toast = document.getElementById("toast");
-            toast.textContent = message;
-            toast.className = "toast show";
-            setTimeout(function () { toast.className = toast.className.replace("show", ""); }, 3000);
-        }
-    </script>
 
     <script src="js/shorts-admin.js" defer></script>
 </body>
