@@ -159,6 +159,21 @@
                     </details>
                 </div>
 
+                <!-- 🟢 MULTI-PLATFORM MEDIA -->
+                <div class="form-group" style="margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <label>Multi-Platform Media (YouTube, TikTok, FB)</label>
+                    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                        <input type="text" id="mediaUrl" placeholder="Paste video URL here..." style="flex: 1;">
+                        <button type="button" class="btn-equal" style="width: auto; padding: 0 15px;"
+                            onclick="addEmbed()">Add</button>
+                    </div>
+
+                    <!-- Embeds List -->
+                    <div id="embedsList" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+
                 <div class="modal-footer">
                     <button type="button" class="secondary btn-equal" onclick="requestCloseModal()"
                         style="margin-right: 10px;">Cancel</button>
